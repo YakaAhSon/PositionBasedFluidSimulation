@@ -12,6 +12,9 @@
     <Filter Include="pbfsim">
       <UniqueIdentifier>{3ec5645f-df77-4c44-a8ac-b351e7423927}</UniqueIdentifier>
     </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{25f39f05-c48c-40f2-8096-d070d49f8abf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -20,10 +23,16 @@
     <ClCompile Include="pbfsim.cpp">
       <Filter>pbfsim</Filter>
     </ClCompile>
+    <ClCompile Include="utilities.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">
       <Filter>pbfsim</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
