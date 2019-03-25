@@ -1,4 +1,8 @@
 #include"utilities.h"
+#include<string>
+#include<iostream>
+
+#include<fstream>
 
 using namespace std;
 
@@ -40,7 +44,7 @@ void util::linkProgram(GLuint program, const char* errinfo) {
     }
 }
 
-GLuint util::createProgram_C(std::string source) {
+GLuint util::createProgram_C(const std::string& source) {
     GLuint program = glCreateProgram();
     GLuint shader = createShader(source.c_str(), GL_COMPUTE_SHADER);
 
@@ -50,7 +54,7 @@ GLuint util::createProgram_C(std::string source) {
     return program;
 }
 
-GLuint util::createProgram_VF(std::string v_source, std::string f_source) {
+GLuint util::createProgram_VF(const std::string& v_source, const std::string& f_source) {
     GLuint program = glCreateProgram();
     GLuint v_shader = createShader(v_source.c_str(), GL_VERTEX_SHADER);
     GLuint f_shader = createShader(f_source.c_str(), GL_FRAGMENT_SHADER);
@@ -61,4 +65,22 @@ GLuint util::createProgram_VF(std::string v_source, std::string f_source) {
     linkProgram(program);
 
     return program;
+}
+
+std::string util::readFile(const std::string& file_name)
+{
+    ifstream f;
+    f.open(file_name);
+
+    if (!f.is_open()) {
+        cout << "unable to open file: " << file_name << std::endl << "Press any key to exit ...";
+        getchar();
+        exit(1);
+    }
+
+    string s;
+    s.assign((std::istreambuf_iterator<char>(f)),
+        (std::istreambuf_iterator<char>()));
+    f.close();
+    return s;
 }

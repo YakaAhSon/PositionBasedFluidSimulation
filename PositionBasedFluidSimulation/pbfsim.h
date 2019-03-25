@@ -1,8 +1,9 @@
 #pragma once
 #ifndef __pbfsim__
 #define __pbfsim__
-
-#include "glm/glm.hpp"
+#include"predef.h"
+#include"camera.h"
+#include<glad/glad.h>
 
 #include <vector>
 
@@ -18,14 +19,30 @@ private:
     std::vector<glm::vec3> _partical_pos_;
     std::vector<glm::vec3> _partical_pos_prev_;
 
+public:
+    Camera camera;
+
 private:
     void predict();
     void solveConstraint();
 
 public:
     PBF(int partical_count, float box_size, float partical_weight, float fluid_density);
+
+    void initialize();
     void sim(double timestep);
     void render();
+
+    
+private:
+    GLuint _partical_vao_;
+    GLuint _partical_vbo_;
+    GLuint _render_program_;
+
+    GLuint _render_program_mMVP_location_;
+
+    void initializeRenderer();
+    
 };
 
 #endif

@@ -15,6 +15,15 @@
     <Filter Include="utilities">
       <UniqueIdentifier>{25f39f05-c48c-40f2-8096-d070d49f8abf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{199b1ec3-2370-4209-aeb0-91a654c11463}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders\fluid_render">
+      <UniqueIdentifier>{341b679e-6aef-4ddc-9191-5aa86b600496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="camera">
+      <UniqueIdentifier>{69cd2ed1-22f2-462a-af9e-19e191124e6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -26,6 +35,12 @@
     <ClCompile Include="utilities.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>camera</Filter>
+    </ClCompile>
+    <ClCompile Include="pbfrender.cpp">
+      <Filter>pbfsim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">
@@ -34,5 +49,19 @@
     <ClInclude Include="utilities.h">
       <Filter>utilities</Filter>
     </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="predef.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fluid_render_vertex.glsl">
+      <Filter>shaders\fluid_render</Filter>
+    </None>
+    <None Include="shaders\fluid_render_fragment.glsl">
+      <Filter>shaders\fluid_render</Filter>
+    </None>
   </ItemGroup>
 </Project>

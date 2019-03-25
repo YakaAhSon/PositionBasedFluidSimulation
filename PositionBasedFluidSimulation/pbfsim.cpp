@@ -1,4 +1,6 @@
 #include"pbfsim.h"
+#include"utilities.h"
+
 void PBF::predict()
 {
 }
@@ -17,10 +19,23 @@ PBF::PBF(int partical_count, float box_size, float partical_weight, float fluid_
     _partical_pos_prev_.resize(_partical_count_);
 }
 
-void PBF::sim(double timestep)
+void PBF::initialize()
 {
+    _partical_pos_.clear();
+    for (int x = -50; x < 50; x++) {
+        for (int y = -50; y < 0; y++) {
+            for (int z = -50; z < 50; z++) {
+                _partical_pos_.push_back(glm::vec3(x/10.0, y/10.0, z/10.0));
+            }
+        }
+    }
+    initializeRenderer();
 }
 
-void PBF::render()
+void PBF::sim(double timestep)
 {
+    predict();
+    solveConstraint();
 }
+
+

@@ -16,10 +16,12 @@ namespace util {
     void linkProgram(GLuint program, const char* errinfo = "");
 
     // copute shader
-    GLuint createProgram_C(std::string source);
+    GLuint createProgram_C(const std::string& source);
     
     // vertex+fragment shader
-    GLuint createProgram_VF(std::string v_source, std::string f_source);
+    GLuint createProgram_VF(const std::string& v_source, const std::string& f_source);
+
+    std::string readFile(const std::string& file_name);
 }
 
 #endif

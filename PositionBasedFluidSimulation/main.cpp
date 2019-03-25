@@ -6,6 +6,9 @@
 #include <array>
 #include"pbfsim.h"
 
+
+PBF pbf(500000, 1.0, 500.0 / 500000, 1000.0);
+
 static void updateFPS() 
 {
     static DWORD s = GetTickCount64(), e;
@@ -22,13 +25,63 @@ static void updateFPS()
 
 GLFWwindow* window;
 
-PBF pbf(500000, 1.0, 500.0/500000, 1000.0);
-
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+    
 }
+
+
+static void windowsize_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+    pbf.camera.setViewFrustum(glm::pi<float>() / 2, static_cast<float>(width) / static_cast<float>(height));
+}
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    pbf.camera.moveForward(yoffset);
+}
+
+static void cursorposition_callback(GLFWwindow* window, double xpos,double ypos)
+{
+    static double x_prev = 0;
+    static double y_prev = 0;
+    double delta_x = xpos - x_prev;
+    double delta_y = ypos - y_prev;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1)==GLFW_PRESS) {
+        pbf.camera.rotateRight(-delta_x/500.0);
+        pbf.camera.rotateUp(delta_y/500.0);
+    }
+    x_prev = xpos;
+    y_prev = ypos;
+}
+
+void updateCamera()
+{
+    float speed = 0.1;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        pbf.camera.moveUp(speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        pbf.camera.moveUp(-speed);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        pbf.camera.moveRight(-speed);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        pbf.camera.moveRight(speed);
+    }
+
+}
+
 int main(void) 
 {
 
@@ -46,6 +99,10 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     glfwSetKeyCallback(window, key_callback);
+    glfwSetWindowSizeCallback(window, windowsize_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetCursorPosCallback(window, cursorposition_callback);
+
     glfwMakeContextCurrent(window);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -57,13 +114,15 @@ int main(void)
 
     glfwSwapInterval(0);
 
-    
+    pbf.initialize();
+    pbf.camera.moveForward(-10.0);
+    pbf.camera.moveUp(1.0);
 
     while (!glfwWindowShouldClose(window)) 
     {
-
-        glClearColor(0, 1, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        updateCamera();
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double timestep = 1 / 60.0;
 
