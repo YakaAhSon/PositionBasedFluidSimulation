@@ -15,5 +15,5 @@ layout(std430, binding = 2) buffer pos_delta_buffer {
 
 void main(void)
 {
-    pos_curr[gl_GlobalInvocationID.x] += pos_delta[gl_GlobalInvocationID.x];
+    //pos_curr[gl_GlobalInvocationID.x] += pos_delta[gl_GlobalInvocationID.x];
 }

@@ -70,10 +70,16 @@ void main(void)
                     float l = dot(norm, norm);
 
                     if (l < (0.05*0.05)) {
-                        l = sqrt(l)-0.05;
-                        l = -min(l, 0.000001);
-                        norm = normalize(norm)*l*0.5;
+                        l = sqrt(l);
+                        l = max(l, 0.000001);
+                        norm = norm / l;
+                        l = 0.05-l;
+                        l = max(l, 0.000001);
+                        norm = norm*l*0.3;
                         pos_delta[gl_GlobalInvocationID.x] += norm;
+
+                        pos_curr[gl_GlobalInvocationID.x].xyz += norm;
+                        pos_curr[neighbour_idx].xyz -= norm;
                     }
 
                 }

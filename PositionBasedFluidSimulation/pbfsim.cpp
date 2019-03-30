@@ -126,9 +126,4 @@ void PBF::sim(double timestep)
     computeDensityConstraintPosDelta();
     applyDensityConstraintPosDelta();
 
-
-    solveBorderConstraint();
-    updateGrid();
-    computeDensityConstraintPosDelta();
-    applyDensityConstraintPosDelta();
 }
