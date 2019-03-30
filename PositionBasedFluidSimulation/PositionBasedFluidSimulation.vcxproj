@@ -142,6 +142,7 @@
   <ItemGroup>
     <None Include="shaders\border_constraint.glsl" />
     <None Include="shaders\density_constraint.glsl" />
+    <None Include="shaders\density_constraint_apply.glsl" />
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />
     <None Include="shaders\predict.glsl" />

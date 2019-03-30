@@ -84,5 +84,8 @@
     <None Include="shaders\update_grid.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
+    <None Include="shaders\density_constraint_apply.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </None>
   </ItemGroup>
 </Project>

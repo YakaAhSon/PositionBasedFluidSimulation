@@ -31,7 +31,9 @@ private:
 private:
     void predict();
     void updateGrid();
-    void solveConstraint();
+    void solveBorderConstraint();
+    void computeDensityConstraintPosDelta();
+    void applyDensityConstraintPosDelta();
 
 public:
     PBF(int partical_count, float partical_radius, float fluid_density);
@@ -66,6 +68,11 @@ private:
     GLuint _sim_density_constraint_grid_size_location_;
     GLuint _sim_density_constraint_grid_edge_count_location_;
     GLuint _sim_density_constraint_grid_edge_count2_location_;
+
+    GLuint _sim_apply_density_constraint_kernel_;
+
+    // delta p
+    GLuint _buffer_partical_pos_delta_;
     
 };
 
