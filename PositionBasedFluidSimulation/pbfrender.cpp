@@ -1,6 +1,8 @@
 #include"pbfsim.h"
 #include"utilities.h"
 
+static const int sphere_details = 8;
+
 void PBF::initializeRenderer()
 {
     _render_program_ = util::createProgram_VF(
@@ -18,24 +20,21 @@ void PBF::initializeRenderer()
 
     glGenBuffers(1, &_sphere_vertices_buffer_);
     std::vector<glm::vec2> sphere_vertices;
-    for (int i = 0; i < 32; i++) {
-        float a1 = glm::pi<float>() / 16.0*i;
-        float a2 = glm::pi<float>() / 16.0*(i + 1);
-        sphere_vertices.push_back(glm::vec2(0, 0));
+
+    sphere_vertices.push_back(glm::vec2(0, 0));
+    for (int i = 0; i < sphere_details+1; i++) {
+        float a1 = 2*glm::pi<float>() / sphere_details *i;
         sphere_vertices.push_back(glm::vec2(glm::cos(a1), glm::sin(a1)));
-        sphere_vertices.push_back(glm::vec2(glm::cos(a2), glm::sin(a2)));
     }
     glBindBuffer(GL_ARRAY_BUFFER, _sphere_vertices_buffer_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2)*sphere_vertices.size(), &sphere_vertices[0][0], GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glGenBuffers(1, &_partical_vbo_);
-    glBindBuffer(GL_ARRAY_BUFFER, _partical_vbo_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*_partical_count_, NULL, GL_STREAM_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer_partical_pos_curr_);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
     glVertexAttribDivisor(1, 1);
 
     glBindVertexArray(0);
@@ -48,10 +47,8 @@ void PBF::render()
     glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
     glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
     glBindVertexArray(_partical_vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, _partical_vbo_);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3)*_partical_count_, &_partical_pos_[0]);
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 32 * 3, _partical_count_);
+    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details +2, _partical_count_);
 
     glBindVertexArray(0);
 }

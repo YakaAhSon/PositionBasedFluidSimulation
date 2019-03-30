@@ -141,6 +141,7 @@
   <ItemGroup>
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />
+    <None Include="shaders\predict.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

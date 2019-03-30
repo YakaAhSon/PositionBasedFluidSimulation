@@ -16,8 +16,7 @@ private:
     const float _partical_weight_;
     const float _fluid_density_;
 
-    std::vector<glm::vec3> _partical_pos_;
-    std::vector<glm::vec3> _partical_pos_prev_;
+    std::vector<glm::vec4> _partical_pos_;
 
 public:
     Camera camera;
@@ -35,9 +34,18 @@ public:
 
     
 private:
+    GLuint _buffer_partical_pos_prev_;
+    GLuint _buffer_partical_pos_curr_;
+
     GLuint _partical_vao_;
+
+// simulator kernels
+private:
+    GLuint _sim_predict_kernel_;
+
+// renderer
+private:
     GLuint _sphere_vertices_buffer_;
-    GLuint _partical_vbo_;
     GLuint _render_program_;
 
     GLuint _render_program_mView_location_;

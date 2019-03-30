@@ -7,7 +7,7 @@
 #include"pbfsim.h"
 
 
-PBF pbf(500000, 1.0, 500.0 / 500000, 1000.0);
+PBF pbf(1024*128, 1.0, 500.0 / 500000, 1000.0);
 
 static void updateFPS() 
 {
@@ -112,7 +112,7 @@ int main(void)
     std::cout << OpenGLVersion << std::endl;
     std::cout << OpenGLVender << std::endl;
 
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -134,7 +134,7 @@ int main(void)
         pbf.sim(timestep);
 
         pbf.render();
-
+        updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

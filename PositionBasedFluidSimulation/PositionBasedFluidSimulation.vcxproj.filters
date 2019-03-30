@@ -24,6 +24,9 @@
     <Filter Include="camera">
       <UniqueIdentifier>{69cd2ed1-22f2-462a-af9e-19e191124e6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\sim_kernel">
+      <UniqueIdentifier>{10eb7822-e6fe-4308-a76e-ea11f6b5fbf9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -62,6 +65,9 @@
     </None>
     <None Include="shaders\fluid_render_fragment.glsl">
       <Filter>shaders\fluid_render</Filter>
+    </None>
+    <None Include="shaders\predict.glsl">
+      <Filter>shaders\sim_kernel</Filter>
     </None>
   </ItemGroup>
 </Project>
