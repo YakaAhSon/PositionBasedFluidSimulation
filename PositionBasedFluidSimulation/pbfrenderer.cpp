@@ -1,10 +1,16 @@
-#include"pbfsim.h"
 #include"utilities.h"
+#include<vector>
+#include"predef.h"
+#include"pbfrenderer.h"
+
 
 static const int sphere_details = 8;
 
-void PBF::initializeRenderer()
+void PBFRenderer::initialize(GLuint vbo, int partical_count)
 {
+    _vbo_ = vbo;
+    _partical_count_ = partical_count;
+
     _render_program_ = util::createProgram_VF(
         util::readFile("shaders\\fluid_render_vertex.glsl"),
         util::readFile("shaders\\fluid_render_fragment.glsl"));
@@ -31,16 +37,16 @@ void PBF::initializeRenderer()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, _buffer_partical_pos_curr_);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo_);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
     glVertexAttribDivisor(1, 1);
 
     glBindVertexArray(0);
 }
 
-void PBF::render()
+void PBFRenderer::render()
 {
     glUseProgram(_render_program_);
 

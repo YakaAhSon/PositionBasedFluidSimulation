@@ -5,9 +5,11 @@
 #include <iostream>
 #include <array>
 #include"pbfsim.h"
+#include"pbfrenderer.h"
 
 
-PBF pbf(1024*128, 1.0, 500.0 / 500000, 1000.0);
+PBF pbf(1024*128, 0.05, 1000.0);
+PBFRenderer renderer;
 
 static void updateFPS() 
 {
@@ -25,23 +27,26 @@ static void updateFPS()
 
 GLFWwindow* window;
 
+bool sim_run = false;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
-    
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        sim_run = !sim_run;
 }
 
 
 static void windowsize_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    pbf.camera.setViewFrustum(glm::pi<float>() / 2, static_cast<float>(width) / static_cast<float>(height));
+    renderer.camera.setViewFrustum(glm::pi<float>() / 2, static_cast<float>(width) / static_cast<float>(height));
 }
 
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    pbf.camera.moveForward(yoffset);
+    renderer.camera.moveForward(yoffset);
 }
 
 static void cursorposition_callback(GLFWwindow* window, double xpos,double ypos)
@@ -51,8 +56,8 @@ static void cursorposition_callback(GLFWwindow* window, double xpos,double ypos)
     double delta_x = xpos - x_prev;
     double delta_y = ypos - y_prev;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1)==GLFW_PRESS) {
-        pbf.camera.rotateRight(-delta_x/500.0);
-        pbf.camera.rotateUp(delta_y/500.0);
+        renderer.camera.rotateRight(-delta_x/500.0);
+        renderer.camera.rotateUp(delta_y/500.0);
     }
     x_prev = xpos;
     y_prev = ypos;
@@ -63,21 +68,21 @@ void updateCamera()
     float speed = 0.1;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        pbf.camera.moveUp(speed);
+        renderer.camera.moveUp(speed);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        pbf.camera.moveUp(-speed);
+        renderer.camera.moveUp(-speed);
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        pbf.camera.moveRight(-speed);
+        renderer.camera.moveRight(-speed);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        pbf.camera.moveRight(speed);
+        renderer.camera.moveRight(speed);
     }
 
 }
@@ -117,11 +122,13 @@ int main(void)
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_MULTISAMPLE);
-    
 
     pbf.initialize();
-    pbf.camera.moveForward(-10.0);
-    pbf.camera.moveUp(1.0);
+
+    renderer.initialize(pbf.getCurrPosVBO(), pbf.getParticalCount());
+
+    renderer.camera.moveForward(-10.0);
+    renderer.camera.moveUp(1.0);
 
     while (!glfwWindowShouldClose(window)) 
     {
@@ -131,9 +138,11 @@ int main(void)
 
         double timestep = 1 / 60.0;
 
-        pbf.sim(timestep);
+        if(sim_run)
+            pbf.sim(timestep);
 
-        pbf.render();
+        renderer.render();
+
         updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();

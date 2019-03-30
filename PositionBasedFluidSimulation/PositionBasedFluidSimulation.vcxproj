@@ -129,19 +129,23 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pbfsim.cpp" />
-    <ClCompile Include="pbfrender.cpp" />
+    <ClCompile Include="pbfrenderer.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="pbfrenderer.h" />
     <ClInclude Include="pbfsim.h" />
     <ClInclude Include="predef.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\border_constraint.glsl" />
+    <None Include="shaders\density_constraint.glsl" />
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />
     <None Include="shaders\predict.glsl" />
+    <None Include="shaders\update_grid.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

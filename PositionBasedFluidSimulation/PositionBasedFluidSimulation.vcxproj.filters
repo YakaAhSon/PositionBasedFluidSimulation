@@ -27,6 +27,9 @@
     <Filter Include="shaders\sim_kernel">
       <UniqueIdentifier>{10eb7822-e6fe-4308-a76e-ea11f6b5fbf9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbfrenderer">
+      <UniqueIdentifier>{75e2b398-a22a-4412-a2e8-c550afeef057}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -41,8 +44,8 @@
     <ClCompile Include="camera.cpp">
       <Filter>camera</Filter>
     </ClCompile>
-    <ClCompile Include="pbfrender.cpp">
-      <Filter>pbfsim</Filter>
+    <ClCompile Include="pbfrenderer.cpp">
+      <Filter>pbfrenderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +61,9 @@
     <ClInclude Include="predef.h">
       <Filter>源文件</Filter>
     </ClInclude>
+    <ClInclude Include="pbfrenderer.h">
+      <Filter>pbfrenderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fluid_render_vertex.glsl">
@@ -67,6 +73,15 @@
       <Filter>shaders\fluid_render</Filter>
     </None>
     <None Include="shaders\predict.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </None>
+    <None Include="shaders\border_constraint.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </None>
+    <None Include="shaders\density_constraint.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </None>
+    <None Include="shaders\update_grid.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
   </ItemGroup>
