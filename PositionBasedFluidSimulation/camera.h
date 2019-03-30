@@ -13,6 +13,8 @@ public:
     void setViewFrustum(float fovy, float aspect);
 
     const glm::mat4 getRotationMatrix()const;
+    const glm::mat4 getProjectionMatrix()const;
+    const glm::mat4 getViewMatrix()const;
     const glm::mat4 getViewProjectionMatrix()const;
 
     void moveGlobal(const glm::vec3& step);

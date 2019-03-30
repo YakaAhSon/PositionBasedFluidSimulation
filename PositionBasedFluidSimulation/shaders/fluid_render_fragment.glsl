@@ -2,7 +2,10 @@
 // render fluid particals
 // fragment shader
 
+in  vec2 pointCoord;
+
 void main(void) 
 {
-    gl_FragColor = vec4(1, 1, 1, 0);
+    float illu = dot(pointCoord, vec2(1.0f, 1.0f));
+    gl_FragColor = vec4(0,0,illu,1);
 }

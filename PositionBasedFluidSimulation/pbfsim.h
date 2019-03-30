@@ -36,10 +36,12 @@ public:
     
 private:
     GLuint _partical_vao_;
+    GLuint _sphere_vertices_buffer_;
     GLuint _partical_vbo_;
     GLuint _render_program_;
 
-    GLuint _render_program_mMVP_location_;
+    GLuint _render_program_mView_location_;
+    GLuint _render_program_mProjection_location_;
 
     void initializeRenderer();
     

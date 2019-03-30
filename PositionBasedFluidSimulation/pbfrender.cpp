@@ -8,18 +8,35 @@ void PBF::initializeRenderer()
         util::readFile("shaders\\fluid_render_fragment.glsl"));
 
     glBindAttribLocation(_render_program_, 0, "vVertex");
+    glBindAttribLocation(_render_program_, 1, "particalPosition");
     util::linkProgram(_render_program_);
-    _render_program_mMVP_location_ = glGetUniformLocation(_render_program_, "mVP");
+    _render_program_mView_location_ = glGetUniformLocation(_render_program_, "mView");
+    _render_program_mProjection_location_ = glGetUniformLocation(_render_program_, "mProjection");
 
     glGenVertexArrays(1, &_partical_vao_);
     glBindVertexArray(_partical_vao_);
+
+    glGenBuffers(1, &_sphere_vertices_buffer_);
+    std::vector<glm::vec2> sphere_vertices;
+    for (int i = 0; i < 32; i++) {
+        float a1 = glm::pi<float>() / 16.0*i;
+        float a2 = glm::pi<float>() / 16.0*(i + 1);
+        sphere_vertices.push_back(glm::vec2(0, 0));
+        sphere_vertices.push_back(glm::vec2(glm::cos(a1), glm::sin(a1)));
+        sphere_vertices.push_back(glm::vec2(glm::cos(a2), glm::sin(a2)));
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, _sphere_vertices_buffer_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2)*sphere_vertices.size(), &sphere_vertices[0][0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
     glGenBuffers(1, &_partical_vbo_);
     glBindBuffer(GL_ARRAY_BUFFER, _partical_vbo_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*_partical_count_, NULL, GL_STREAM_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribDivisor(1, 1);
 
     glBindVertexArray(0);
 }
@@ -28,13 +45,13 @@ void PBF::render()
 {
     glUseProgram(_render_program_);
 
-    glUniformMatrix4fv(_render_program_mMVP_location_, 1, GL_FALSE, &camera.getViewProjectionMatrix()[0][0]);
+    glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
+    glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
     glBindVertexArray(_partical_vao_);
     glBindBuffer(GL_ARRAY_BUFFER, _partical_vbo_);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3)*_partical_count_, &_partical_pos_[0]);
 
-    glPointSize(1);
-    glDrawArrays(GL_POINTS, 0, _partical_count_);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 32 * 3, _partical_count_);
 
     glBindVertexArray(0);
 }

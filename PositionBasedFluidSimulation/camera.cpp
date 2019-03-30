@@ -20,7 +20,12 @@ const glm::mat4 Camera::getRotationMatrix() const
     return mHeading * mPitch;
 }
 
-const glm::mat4 Camera::getViewProjectionMatrix() const
+const glm::mat4 Camera::getProjectionMatrix() const
+{
+    return m_projection;
+}
+
+const glm::mat4 Camera::getViewMatrix() const
 {
     glm::mat4 mR = getRotationMatrix();
     mR = glm::transpose(mR);
@@ -28,8 +33,12 @@ const glm::mat4 Camera::getViewProjectionMatrix() const
     glm::mat4 mT = glm::translate(-v_pos);
 
     glm::mat4 mView = mR * mT;
+    return mView;
+}
 
-    return m_projection * mView;
+const glm::mat4 Camera::getViewProjectionMatrix() const
+{
+    return m_projection * getViewMatrix();
 }
 
 void Camera::moveGlobal(const glm::vec3 & step)

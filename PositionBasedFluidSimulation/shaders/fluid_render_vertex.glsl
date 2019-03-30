@@ -2,10 +2,21 @@
 // render fluid particals
 // vertex shader
 
-in vec3 vVertex;
-uniform mat4 mVP;// model view projection matrix
+in vec2 vVertex;
+
+in vec3 particalPosition;
+
+uniform mat4 mView;
+uniform mat4 mProjection;
+
+out vec2 pointCoord;
 
 void main(void)
 {
-    gl_Position = mVP * vec4(vVertex, 1.0f);
+    vec4 vertex_pos = vec4(0.05*vVertex, 0.0, 0.0) + mView * vec4(particalPosition, 1.0);
+
+    gl_Position = mProjection * vertex_pos;
+
+    pointCoord = vVertex;
+
 }

@@ -90,7 +90,7 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_SAMPLES, 2);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(512, 512, "Window", NULL, NULL);
     if (!window) 
@@ -113,6 +113,11 @@ int main(void)
     std::cout << OpenGLVender << std::endl;
 
     glfwSwapInterval(0);
+
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_MULTISAMPLE);
+    
 
     pbf.initialize();
     pbf.camera.moveForward(-10.0);
