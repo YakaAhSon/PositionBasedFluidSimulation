@@ -4,13 +4,21 @@
 
 #include<iostream>
 
+
+
+void PBF::runComputeShaderForEachPartical()
+{
+    glDispatchCompute(_partical_count_ / 128, 1, 1);
+    glFinish();
+}
+
 void PBF::predict()
 {
     glUseProgram(_sim_predict_kernel_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_partical_pos_prev_);
 
-    glDispatchCompute(_partical_count_ / 32, 1, 1);
+    runComputeShaderForEachPartical();
 }
 
 void PBF::updateGrid()
@@ -27,14 +35,7 @@ void PBF::updateGrid()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grid_partical_idx_);
 
-    glDispatchCompute(_partical_count_ / 32, 1, 1);
-}
-
-void PBF::solveBorderConstraint()
-{
-    glUseProgram(_sim_border_constraint_kernel_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glDispatchCompute(_partical_count_ / 32, 1, 1);
+    runComputeShaderForEachPartical();
 }
 
 void PBF::computeDensityConstraintPosDelta() 
@@ -48,16 +49,20 @@ void PBF::computeDensityConstraintPosDelta()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grid_partical_idx_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_partical_pos_delta_);
 
-    glDispatchCompute(_partical_count_ / 32, 1, 1);
+    runComputeShaderForEachPartical();
 }
 
 void PBF::applyDensityConstraintPosDelta()
 {
     glUseProgram(_sim_apply_density_constraint_kernel_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grid_partical_idx_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_partical_pos_delta_);
 
-    glDispatchCompute(_partical_count_ / 32, 1, 1);
+    
+    //float* delta = (float*)glMapNamedBuffer(_buffer_partical_pos_delta_, GL_READ_WRITE);
+    //glUnmapNamedBuffer(_buffer_partical_pos_delta_);
+    runComputeShaderForEachPartical();
 }
 
 PBF::PBF(int partical_count, float partical_size, float fluid_density):
@@ -86,19 +91,18 @@ void PBF::initialize()
 
     glGenBuffers(1, &_buffer_partical_pos_prev_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_prev_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_READ);
 
     glGenBuffers(1, &_buffer_partical_pos_curr_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_curr_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_READ);
 
     glGenBuffers(1, &_buffer_partical_pos_delta_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_delta_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, NULL, GL_DYNAMIC_READ);
 
     // initialize simulator kernels
     _sim_predict_kernel_ = util::createProgram_C(util::readFile("shaders\\predict.glsl"));
-    _sim_border_constraint_kernel_ = util::createProgram_C(util::readFile("shaders\\border_constraint.glsl"));
     
     _sim_update_grid_kernel_ = util::createProgram_C(util::readFile("shaders\\update_grid.glsl"));
     _sim_update_grid_grid_size_location_ = glGetUniformLocation(_sim_update_grid_kernel_, "grid_size");
@@ -121,9 +125,9 @@ void PBF::sim(double timestep)
 {
     predict();
 
-    solveBorderConstraint();
     updateGrid();
-    computeDensityConstraintPosDelta();
-    applyDensityConstraintPosDelta();
-
+    for (int i = 0; i < 10; i++) {
+        computeDensityConstraintPosDelta();
+        applyDensityConstraintPosDelta();
+    }
 }

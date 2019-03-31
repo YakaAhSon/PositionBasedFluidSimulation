@@ -4,7 +4,7 @@
 #include"pbfrenderer.h"
 
 
-static const int sphere_details = 8;
+static const int sphere_details = 32;
 
 void PBFRenderer::initialize(GLuint vbo, int partical_count)
 {

@@ -27,16 +27,15 @@ private:
 
     std::vector<glm::vec4> _partical_pos_;
 
-
+    void runComputeShaderForEachPartical();
 private:
     void predict();
     void updateGrid();
-    void solveBorderConstraint();
     void computeDensityConstraintPosDelta();
     void applyDensityConstraintPosDelta();
 
 public:
-    PBF(int partical_count, float partical_radius, float fluid_density);
+    PBF(int partical_count, float partical_size, float fluid_density);
 
     int getParticalCount() { return _partical_count_; }
 
@@ -57,7 +56,6 @@ public:
 // simulator kernels
 private:
     GLuint _sim_predict_kernel_;
-    GLuint _sim_border_constraint_kernel_;
 
     GLuint _sim_update_grid_kernel_;
     GLuint _sim_update_grid_grid_size_location_;

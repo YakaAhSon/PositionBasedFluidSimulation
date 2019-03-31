@@ -75,9 +75,6 @@
     <None Include="shaders\predict.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
-    <None Include="shaders\border_constraint.glsl">
-      <Filter>shaders\sim_kernel</Filter>
-    </None>
     <None Include="shaders\density_constraint.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>

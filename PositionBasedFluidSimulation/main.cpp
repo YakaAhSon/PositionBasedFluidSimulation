@@ -8,7 +8,7 @@
 #include"pbfrenderer.h"
 
 
-PBF pbf(1024*128, 0.05, 1000.0);
+PBF pbf(32*512, 0.5, 1000.0);
 PBFRenderer renderer;
 
 static void updateFPS() 
@@ -28,13 +28,15 @@ static void updateFPS()
 GLFWwindow* window;
 
 bool sim_run = false;
-
+bool sim_step = false;
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
         sim_run = !sim_run;
+    if (key == GLFW_KEY_N && action == GLFW_PRESS)
+        sim_step = true;
 }
 
 
@@ -94,7 +96,7 @@ int main(void)
         exit(EXIT_FAILURE);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(512, 512, "Window", NULL, NULL);
@@ -137,6 +139,11 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double timestep = 1 / 60.0;
+
+        if (!sim_run&& sim_step) {
+            sim_step = false;
+            pbf.sim(timestep);
+        }
 
         if(sim_run)
             pbf.sim(timestep);
