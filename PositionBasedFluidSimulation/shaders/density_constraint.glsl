@@ -56,18 +56,18 @@ void main(void)
     
     vec4 delta = vec4(0);
 
-    for (uint n = 0; n < 32*512; n++) {
+    for (uint n = 0; n < 32*1024; n++) {
         if (n != gl_GlobalInvocationID.x) {
             vec3 neighbour = pos_curr[n].xyz;
 
             vec3 norm = pos - neighbour;
             float l = dot(norm, norm);
 
-            if (l < (0.05*0.05)) {
+            if (l < (0.2*0.2)) {
                 l = sqrt(l);
                 l = max(l, 0.000001);
                 norm = norm / l;
-                l = 0.05 - l;
+                l = 0.2 - l;
                 delta.xyz += norm* l * 0.5;
             }
         }

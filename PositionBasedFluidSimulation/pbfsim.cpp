@@ -80,10 +80,10 @@ PBF::PBF(int partical_count, float partical_size, float fluid_density):
 void PBF::initialize()
 {
     _partical_pos_.clear();
-    for (int x = -50; x < 50; x++) {
-        for (int y = 0; y < 50; y++) {
-            for (int z = -50; z < 50; z++) {
-                _partical_pos_.push_back(glm::vec4(x/10.0, y/10.0, z/10.0,0));
+    for (int x = -25; x < 25; x++) {
+        for (int y = 0; y < 25; y++) {
+            for (int z = -25; z < 25; z++) {
+                _partical_pos_.push_back(glm::vec4(x/5.0, y/5.0, z/5.0,0));
             }
         }
     }
@@ -126,7 +126,7 @@ void PBF::sim(double timestep)
     predict();
 
     updateGrid();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
         computeDensityConstraintPosDelta();
         applyDensityConstraintPosDelta();
     }
