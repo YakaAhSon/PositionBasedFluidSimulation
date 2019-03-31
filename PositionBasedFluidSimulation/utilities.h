@@ -22,6 +22,15 @@ namespace util {
     GLuint createProgram_VF(const std::string& v_source, const std::string& f_source);
 
     std::string readFile(const std::string& file_name);
+
+    class ComputeShader {
+    protected:
+        void createProgram(const std::string& file_name) { program = createProgram_C(readFile(file_name)); }
+    public:
+        GLuint program;
+        virtual void initialize()=0;
+        void use() { glUseProgram(program); };
+    };
 }
 
 #endif

@@ -13,7 +13,7 @@ void PBF::runComputeShaderForEachPartical()
 
 void PBF::predict()
 {
-    glUseProgram(_sim_predict_kernel_);
+    glUseProgram(_sim_predict_kernel_.program);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_partical_pos_prev_);
 
@@ -26,11 +26,11 @@ void PBF::updateGrid()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_partical_count_);
     glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
 
-    glUseProgram(_sim_update_grid_kernel_);
-    glUniform1f(_sim_update_grid_cell_size_location_, _grid_size_);
-    glUniform1i(_sim_update_grid_grid_edge_count_location_, _grid_count_edge_);
-    glUniform1i(_sim_update_grid_grid_edge_count2_location_, _grid_count_edge_*_grid_count_edge_);
-    glUniform1i(_sim_update_grid_cell_max_partical_count_location_, static_cast<GLint>(_cell_max_partical_count_));
+    glUseProgram(_sim_update_grid_kernel_.program);
+    glUniform1f(_sim_update_grid_kernel_.cell_size, _grid_size_);
+    glUniform1i(_sim_update_grid_kernel_.grid_edge_count, _grid_count_edge_);
+    glUniform1i(_sim_update_grid_kernel_.grid_edge_count2, _grid_count_edge_*_grid_count_edge_);
+    glUniform1i(_sim_update_grid_kernel_.cell_max_partical_count, static_cast<GLint>(_cell_max_partical_count_));
     
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
@@ -40,13 +40,30 @@ void PBF::updateGrid()
     runComputeShaderForEachPartical();
 }
 
-void PBF::computeDensityConstraintPosDelta() 
+void PBF::calculateLambda()
 {
-    glUseProgram(_sim_density_constraint_kernel_);
-    glUniform1f(_sim_density_constraint_cell_size_location_, _grid_size_);
-    glUniform1i(_sim_density_constraint_grid_edge_count_location_, _grid_count_edge_);
-    glUniform1i(_sim_density_constraint_grid_edge_count2_location_, _grid_count_edge_*_grid_count_edge_);
-    glUniform1i(_sim_density_constraint_cell_max_partical_count_location_, _cell_max_partical_count_);
+    _sim_cal_lambda_kernel_.use();
+    glUniform1i(_sim_cal_lambda_kernel_.cellmaxparticalcount, _cell_max_partical_count_);
+    glUniform1f(_sim_cal_lambda_kernel_.cellsize, _grid_size_);
+    glUniform1f(_sim_cal_lambda_kernel_.kernel_radius, _kernel_radius_);
+    glUniform1i(_sim_cal_lambda_kernel_.grid_edge_count, _grid_count_edge_);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
+
+    runComputeShaderForEachPartical();
+}
+
+void PBF::calculateDeltaP()
+{
+    auto& kernel = _sim_cal_delta_p_kernel_;
+    kernel.use();
+
+    glUniform1f(kernel.cellsize, _grid_size_);
+    glUniform1i(kernel.grid_edge_count, _grid_count_edge_);
+    glUniform1i(kernel.cellmaxparticalcount, _cell_max_partical_count_);
+    glUniform1f(kernel.kernel_radius, _kernel_radius_);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
@@ -58,26 +75,23 @@ void PBF::computeDensityConstraintPosDelta()
 
 void PBF::applyDensityConstraintPosDelta()
 {
-    glUseProgram(_sim_apply_density_constraint_kernel_);
+    _sim_apply_density_constraint_kernel_.use();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_partical_pos_delta_);
 
-    
-    //float* delta = (float*)glMapNamedBuffer(_buffer_partical_pos_delta_, GL_READ_WRITE);
-    //glUnmapNamedBuffer(_buffer_partical_pos_delta_);
     runComputeShaderForEachPartical();
 }
 
-PBF::PBF(int partical_count, float partical_size, float fluid_density, float kernel_size) :
+PBF::PBF(int partical_count, float partical_size, float fluid_density, float kernel_radius) :
     _partical_count_(partical_count),
     _partical_size_(partical_size),
     _partical_weight_(fluid_density*partical_size*partical_size*partical_size),
     _fluid_density_(fluid_density),
-    _kernel_size_(kernel_size),
-    _grid_size_(kernel_size * 0.7),
+    _kernel_radius_(kernel_radius),
+    _grid_size_(kernel_radius *1.1),
     _grid_count_edge_((int)(12 / (_grid_size_)) + 1),
     _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_),
-    _cell_max_partical_count_(pow(static_cast<int>(_kernel_size_ / _partical_size_) + 1, 3)*2)
+    _cell_max_partical_count_(pow(static_cast<int>(kernel_radius*2 / _partical_size_) + 1, 3)*2)
     
 {
     _partical_pos_.resize(_partical_count_);
@@ -109,21 +123,15 @@ void PBF::initialize()
 
 
     // initialize simulator kernels
-    _sim_predict_kernel_ = util::createProgram_C(util::readFile("shaders\\predict.glsl"));
+    _sim_predict_kernel_.initialize();
     
-    _sim_update_grid_kernel_ = util::createProgram_C(util::readFile("shaders\\update_grid.glsl"));
-    _sim_update_grid_cell_size_location_ = glGetUniformLocation(_sim_update_grid_kernel_, "cellsize");
-    _sim_update_grid_grid_edge_count_location_ = glGetUniformLocation(_sim_update_grid_kernel_, "grid_edge_count");
-    _sim_update_grid_cell_max_partical_count_location_ = glGetUniformLocation(_sim_update_grid_kernel_, "cellmaxparticalcount");
-    _sim_update_grid_grid_edge_count2_location_ = glGetUniformLocation(_sim_update_grid_kernel_, "grid_edge_count2");
+    _sim_update_grid_kernel_.initialize();
     
-    _sim_density_constraint_kernel_ = util::createProgram_C(util::readFile("shaders\\density_constraint.glsl"));
-    _sim_density_constraint_cell_size_location_ = glGetUniformLocation(_sim_density_constraint_kernel_, "cellsize");
-    _sim_density_constraint_grid_edge_count_location_ = glGetUniformLocation(_sim_density_constraint_kernel_, "grid_edge_count");
-    _sim_density_constraint_grid_edge_count2_location_ = glGetUniformLocation(_sim_density_constraint_kernel_, "grid_edge_count2");
-    _sim_density_constraint_cell_max_partical_count_location_ = glGetUniformLocation(_sim_density_constraint_kernel_, "cellmaxparticalcount");
+    _sim_cal_lambda_kernel_.initialize();
 
-    _sim_apply_density_constraint_kernel_ = util::createProgram_C(util::readFile("shaders\\density_constraint_apply.glsl"));
+    _sim_cal_delta_p_kernel_.initialize();
+
+    _sim_apply_density_constraint_kernel_.initialize();
 
     // cell buffers
     glGenBuffers(1, &_buffer_cell_partical_count_);
@@ -142,8 +150,9 @@ void PBF::sim(double timestep)
     predict();
 
     updateGrid();
-    for (int i = 0; i < 3; i++) {
-        computeDensityConstraintPosDelta();
+    for (int i = 0; i < 2; i++) {
+        calculateLambda();
+        calculateDeltaP();
         applyDensityConstraintPosDelta();
     }
 }
