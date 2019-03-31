@@ -45,37 +45,15 @@ void main(void)
 
     ivec3 grid_v = getGrid(pos);
 
-    ivec3 grid_v_min = grid_v - ivec3(2);
+    ivec3 grid_v_min = grid_v - ivec3(3);
     grid_v_min = max(grid_v_min, ivec3(0));
 
-    ivec3 grid_v_max = grid_v + ivec3(2);
-    grid_v_max = min(grid_v_max, ivec3(grid_edge_count - 1));
+    ivec3 grid_v_max = grid_v + ivec3(3);
+    grid_v_max = min(grid_v_max, ivec3(grid_edge_count));
 
     int grid_id = getGridIdx(grid_v);
-
-    
-    vec4 delta = vec4(0);
-
-    for (uint n = 0; n < 32*1024; n++) {
-        if (n != gl_GlobalInvocationID.x) {
-            vec3 neighbour = pos_curr[n].xyz;
-
-            vec3 norm = pos - neighbour;
-            float l = dot(norm, norm);
-
-            if (l < (0.2*0.2)) {
-                l = sqrt(l);
-                l = max(l, 0.000001);
-                norm = norm / l;
-                l = 0.2 - l;
-                delta.xyz += norm* l * 0.5;
-            }
-        }
-    }
-    pos_delta[gl_GlobalInvocationID.x] = delta;
-    return;
-    
-    for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
+    pos_delta[gl_GlobalInvocationID.x] = vec4(0);
+    for (int x = grid_v_min.x; x < grid_v_max.x; x++)for (int y = grid_v_min.y; y < grid_v_max.y; y++)for (int z = grid_v_min.z; z < grid_v_max.z; z++) {
 
         int cell_idx = z * grid_edge_count2 + y * grid_edge_count + x;
         uint neighbour_idx = grid[cell_idx];
@@ -87,12 +65,12 @@ void main(void)
             vec3 norm = pos - neighbour;
             float l = dot(norm, norm);
 
-            if (l < (0.5*0.5)) {
+            if (l < (0.2*0.2)) {
                 l = sqrt(l);
                 l = max(l, 0.000001);
                 norm = norm / l;
-                l = 0.5 - l;
-                norm = norm * l*0.1;
+                l = 0.2 - l;
+                norm = norm * l*0.5;
                 pos_delta[gl_GlobalInvocationID.x].xyz += norm;
 
                 //pos_curr[gl_GlobalInvocationID.x].xyz += norm;

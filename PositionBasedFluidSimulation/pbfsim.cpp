@@ -5,7 +5,6 @@
 #include<iostream>
 
 
-
 void PBF::runComputeShaderForEachPartical()
 {
     glDispatchCompute(_partical_count_ / 128, 1, 1);
