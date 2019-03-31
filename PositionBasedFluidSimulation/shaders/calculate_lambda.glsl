@@ -53,8 +53,8 @@ void main(void)
 
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
-    ivec3 grid_v_min = grid_v - ivec3(1);
-    ivec3 grid_v_max = grid_v + ivec3(1);
+    ivec3 grid_v_min = grid_v - ivec3(3);
+    ivec3 grid_v_max = grid_v + ivec3(3);
 
     float rho = partical_weight*POLY6(0);
 
@@ -105,5 +105,5 @@ void main(void)
     
     // lambda = - C/(gradient_j_2 + gradient_i^2)
 
-    pos_curr[gl_GlobalInvocationID.x].w = C /( (gradient_j_2 + dot(gradient_i, gradient_i))+0.5);
+    pos_curr[gl_GlobalInvocationID.x].w = -C / ((gradient_j_2 + dot(gradient_i, gradient_i)) + 0.5)*rho0*rho0;
 }

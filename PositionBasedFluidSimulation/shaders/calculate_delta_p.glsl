@@ -56,8 +56,8 @@ void main(void)
 
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
-    ivec3 grid_v_min = grid_v - ivec3(1);
-    ivec3 grid_v_max = grid_v + ivec3(1);
+    ivec3 grid_v_min = grid_v - ivec3(3);
+    ivec3 grid_v_max = grid_v + ivec3(3);
 
     vec3 deltaP = vec3(0);
 
