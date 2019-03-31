@@ -18,7 +18,7 @@ void main(void)
 {
     //color = particalPosition.w;
     color = 1.0f;
-    vec4 vertex_pos = vec4(0.1*vVertex, 0.0, 0.0) + mView * vec4(particalPosition.xyz, 1.0);
+    vec4 vertex_pos = vec4(0.075*vVertex, 0.0, 0.0) + mView * vec4(particalPosition.xyz, 1.0);
 
     gl_Position = mProjection * vertex_pos;
 

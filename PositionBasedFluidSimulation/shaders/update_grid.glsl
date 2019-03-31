@@ -8,16 +8,24 @@ layout(std430, binding = 0) buffer pos_curr_buffer {
     vec3 pos_curr[];
 };
 
-layout(std430, binding = 1) buffer grid_partical_idx_buffer {
-    uint grid_partical_idx[];
+layout(std430, binding = 1) buffer grid_partical_count_buffer {
+    uint grid_partical_count[];
 };
 
-uniform float grid_size;
+layout(std430, binding = 2) buffer grid_partical_index_buffer {
+    uint grid_partical_index[];
+};
+
+
+uniform float cellsize;
+
+uniform int cellmaxparticalcount;
 uniform int grid_edge_count;
 uniform int grid_edge_count2;
 
+
 int getGridIdx(vec3 v) {
-    ivec3 iv = ivec3((v + vec3(5, 5, 5)) / grid_size);
+    ivec3 iv = ivec3((v + vec3(6, 6, 6)) / cellsize);
 
     iv = max(iv, ivec3(0, 0, 0));
     iv = min(iv, ivec3(grid_edge_count - 1));
@@ -28,5 +36,11 @@ int getGridIdx(vec3 v) {
 void main(void)
 {
     int grid_idx = getGridIdx(pos_curr[gl_GlobalInvocationID.x]);
-    grid_partical_idx[grid_idx] = gl_GlobalInvocationID.x;
+
+    uint partical_index_in_cell = atomicAdd(grid_partical_count[grid_idx], uint(1));
+
+    partical_index_in_cell = min(cellmaxparticalcount -1, partical_index_in_cell);
+
+    grid_partical_index[grid_idx * cellmaxparticalcount + partical_index_in_cell] = gl_GlobalInvocationID.x;
+
 }

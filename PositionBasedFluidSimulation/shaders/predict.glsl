@@ -21,7 +21,7 @@ void main(void)
 
     // g = 9.8
     // 0.5 * g * (1/60) * (1/60) = 0.00136
-    vec4 pos= tmp*2 - pos_prev[gl_GlobalInvocationID.x] + vec4(0.00001, -0.00136, 0.00001,0.000);
+    vec4 pos= tmp*2 - pos_prev[gl_GlobalInvocationID.x] + vec4(0.00001, -0.000136, 0.00001,0.000);
 
     pos_prev[gl_GlobalInvocationID.x] = tmp;
 
