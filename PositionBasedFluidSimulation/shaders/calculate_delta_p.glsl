@@ -32,14 +32,14 @@ uniform float kernel_radius;
 
 float POLY6(float r) {
     float kernel_r2 = kernel_radius * kernel_radius;
-    float kernel_r9 = kernel_r2 * kernel_r2*kernel_r2*kernel_radius;
+    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
     // 315/(64*pi*h^9)
     return (kernel_r2 - r * r)*(kernel_r2 - r * r)*(kernel_r2 - r * r)*1.566681471 / kernel_r9;
 }
 float POLY6_gradient(float r) {
     float kernel_r2 = kernel_radius * kernel_radius;
 
-    float kernel_r9 = kernel_r2 * kernel_r2*kernel_r2*kernel_radius;
+    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
 
     // 945/(32*pi*h^9)
     return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*9.40008826 / kernel_r9;
@@ -94,5 +94,5 @@ void main(void)
 
     }
 
-    pos_delta[gl_GlobalInvocationID.x].xyz = deltaP;
+    pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP, 0);
 }
