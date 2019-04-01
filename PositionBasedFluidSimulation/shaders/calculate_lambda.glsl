@@ -46,7 +46,7 @@ float POLY6_gradient(float r) {
 }
 
 const float rho0 = 1000.0;
-const float partical_weight = 3.375;// rho0*0.15*0.15*0.15
+const float partical_weight = 8.0;// rho0*0.15*0.15*0.15
 
 void main(void)
 {
