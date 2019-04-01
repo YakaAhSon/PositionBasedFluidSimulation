@@ -29,9 +29,8 @@ uniform float kernel_radius;
 
 float POLY6(float r) {
 
-    float h = 0.5;
-    float kernel_r2 = h*h;
-    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * h;
+    float kernel_r2 = kernel_radius* kernel_radius;
+    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
 
     // 315/(64*pi*h^9)
     return (kernel_r2 - r*r)*(kernel_r2 - r*r)*(kernel_r2 - r*r)*1.566681 /kernel_r9;
