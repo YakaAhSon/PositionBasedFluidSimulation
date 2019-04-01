@@ -46,7 +46,7 @@ float POLY6_gradient(float r) {
 }
 
 const float rho0 = 1000.0;
-const float partical_weight = 8.0;// rho0*0.15*0.15*0.15
+const float partical_weight = 8.0;// rho0*0.1*0.1*0.1
 
 void main(void)
 {
@@ -106,5 +106,5 @@ void main(void)
     float C = rho / rho0 - 1;
     
     // lambda = - C/(gradient_j_2 + gradient_i^2)
-    pos_curr[gl_GlobalInvocationID.x].w = -C / (gradient_j_2 + dot(gradient_i, gradient_i) + 5.0*rho0*rho0)*rho0*rho0;
+    pos_curr[gl_GlobalInvocationID.x].w = -C / (gradient_j_2 + dot(gradient_i, gradient_i) + 3.0*rho0*rho0)*rho0*rho0;
 }

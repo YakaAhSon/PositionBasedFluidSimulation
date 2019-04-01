@@ -8,7 +8,7 @@
 #include"pbfrenderer.h"
 
 
-PBF pbf(32*1024, 0.2, 1000.0, 0.41);
+PBF pbf(50*1024, 0.2, 1000.0, 0.41);
 PBFRenderer renderer;
 
 static void updateFPS() 

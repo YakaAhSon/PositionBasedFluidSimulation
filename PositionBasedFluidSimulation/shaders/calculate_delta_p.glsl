@@ -45,6 +45,13 @@ float POLY6_gradient(float r) {
     return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*9.40008826 / kernel_r9;
 }
 
+float scorr(vec3 p1, vec3 p2) {
+    float r = length(p1 - p2);
+    float tmp = POLY6(r) / POLY6(0.2*kernel_radius);
+
+    return -0.1*tmp*tmp*tmp*tmp;
+}
+
 const float rho0 = 1000.0;
 
 void main(void)
@@ -83,7 +90,7 @@ void main(void)
 
                     float g = POLY6_gradient(r);
                     norm = norm / r * g;
-                    deltaP += norm * (pos_curr[gl_GlobalInvocationID.x].w + pos_curr[neighbour_idx].w) / rho0;
+                    deltaP += norm * (pos_curr[gl_GlobalInvocationID.x].w + pos_curr[neighbour_idx].w + scorr(pos_curr[gl_GlobalInvocationID.x].xyz, pos_curr[neighbour_idx].xyz)) / rho0;
 
                 }
 
