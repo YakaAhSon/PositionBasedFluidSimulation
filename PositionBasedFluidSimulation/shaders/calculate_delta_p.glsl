@@ -100,6 +100,9 @@ void main(void)
 
 
     }
-
+    float l = length(deltaP);
+    if (l > 0.3) {
+        deltaP = deltaP / l * 0.3;
+    }
     pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP, 0);
 }
