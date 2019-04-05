@@ -1,10 +1,14 @@
 #pragma once
 #ifndef __UTILITIES__
+
 #define __UTILITIES__
+
 #include<string>
 #include<glad/glad.h>
-
-
+#include<chrono>
+#include<string>
+#include<iostream>
+#include<numeric>
 #ifdef _DEBUG
 #define DEBUG_LOG printf
 #else
@@ -30,6 +34,28 @@ namespace util {
         GLuint program;
         virtual void initialize()=0;
         void use() { glUseProgram(program); };
+    };
+
+    class Timer {
+    private:
+        std::chrono::time_point<std::chrono::high_resolution_clock> _start_;
+    public:
+        Timer() { tic(); }
+        void tic() { 
+            _start_ = std::chrono::high_resolution_clock::now(); 
+        }
+        double toc(const std::string& info = "") {
+            using namespace std::chrono;
+            auto end = std::chrono::high_resolution_clock::now();
+
+            duration<double> time_span = duration_cast<duration<double>>(end - _start_);;
+
+            _start_.time_since_epoch();
+            if (info != "") {
+                std::cout << info << " :\t" << static_cast<int>(time_span.count()*1000000) << " Microsecond"<<std::endl;
+            }
+            return static_cast<int>(time_span.count() * 1000000);
+        }
     };
 }
 

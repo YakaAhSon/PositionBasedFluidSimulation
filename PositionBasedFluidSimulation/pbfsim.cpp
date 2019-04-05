@@ -155,14 +155,28 @@ void PBF::sim(double timestep)
 {
     predict();
 
+    util::Timer t;
+    t.tic();
     updateGrid();
-
+    t.toc("Update Grid");
     for (int i = 0; i < 5; i++) {
+        t.tic();
         copyPosToGrid();
+        t.toc("Copy Pos");
+
+        t.tic();
         calculateLambda();
+        t.toc("Cal Lambda");
+
+        t.tic();
         calculateDeltaP();
+        t.toc("Cal Pos Delta");
+
+        t.tic();
         applyDensityConstraintPosDelta();
+        t.toc("Apply Delta");
     }
+    std::cout << std::endl;
 }
 
 void PBF::copyPosToGrid()
