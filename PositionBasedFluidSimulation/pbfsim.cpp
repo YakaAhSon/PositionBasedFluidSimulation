@@ -36,6 +36,7 @@ void PBF::updateGrid()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
 
     runComputeShaderForEachPartical();
 }
@@ -133,6 +134,8 @@ void PBF::initialize()
 
     _sim_apply_density_constraint_kernel_.initialize();
 
+    _sim_partical_to_grid_.initialize();
+
     // cell buffers
     glGenBuffers(1, &_buffer_cell_partical_count_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_partical_count_);
@@ -140,8 +143,11 @@ void PBF::initialize()
 
     glGenBuffers(1, &_buffer_cell_particals_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_particals_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_grid_count_*_cell_max_partical_count_, NULL, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, (sizeof(GLuint)+sizeof(glm::vec3))*_grid_count_*_cell_max_partical_count_, NULL, GL_DYNAMIC_COPY);
 
+    glGenBuffers(1, &_buffer_partical_grid_index_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
 }
 
@@ -150,9 +156,23 @@ void PBF::sim(double timestep)
     predict();
 
     updateGrid();
-    for (int i = 0; i < 10; i++) {
+
+    for (int i = 0; i < 5; i++) {
+        copyPosToGrid();
         calculateLambda();
         calculateDeltaP();
         applyDensityConstraintPosDelta();
     }
+}
+
+void PBF::copyPosToGrid()
+{
+    glUseProgram(_sim_partical_to_grid_.program);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
+
+    runComputeShaderForEachPartical();
 }

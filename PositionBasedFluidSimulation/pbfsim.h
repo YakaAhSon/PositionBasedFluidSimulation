@@ -56,6 +56,8 @@ private:
     GLuint _buffer_cell_partical_count_;
     GLuint _buffer_cell_particals_;
 
+    // partical index in array: _buffer_cell_particals_
+    GLuint _buffer_partical_grid_index_;
 
     // delta p
     GLuint _buffer_partical_pos_delta_;
@@ -131,6 +133,15 @@ private:
         }
 
     }_sim_cal_delta_p_kernel_;
+
+    class :public util::ComputeShader {
+    public:
+        virtual void initialize()override {
+            createProgram("shaders\\partical_to_grid.glsl");
+
+        }
+    }_sim_partical_to_grid_;
+    void copyPosToGrid();
 };
 
 #endif

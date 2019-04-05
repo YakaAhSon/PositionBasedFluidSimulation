@@ -14,10 +14,12 @@ layout(std430, binding = 1) buffer grid_partical_count_buffer {
     uint grid_partical_count[];
 };
 
-layout(std430, binding = 2) buffer grid_partical_index_buffer {
-    uint grid_partical_index[];
+layout(std430, binding = 2) buffer grid_particals_buffer {
+    struct {
+        vec3 pos;
+        uint index;
+    }grid_particals[];
 };
-
 
 uniform float cellsize;
 
@@ -73,10 +75,10 @@ void main(void)
         // for each partical in the neightbour cell
         for (uint i = 0; i < partical_count; i++) {
 
-            uint neighbour_idx = grid_partical_index[cellidx*cellmaxparticalcount + i];
+            uint neighbour_idx = grid_particals[cellidx*cellmaxparticalcount + i].index;
             if (neighbour_idx != gl_GlobalInvocationID.x) {
 
-                vec3 norm = pos_curr[neighbour_idx].xyz - pos;
+                vec3 norm = grid_particals[cellidx*cellmaxparticalcount + i].pos - pos;
 
                 float r = length(norm);
 

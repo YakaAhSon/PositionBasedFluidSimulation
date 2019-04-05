@@ -145,6 +145,7 @@
     <None Include="shaders\density_constraint_apply.glsl" />
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />
+    <None Include="shaders\partical_to_grid.glsl" />
     <None Include="shaders\predict.glsl" />
     <None Include="shaders\update_grid.glsl" />
   </ItemGroup>

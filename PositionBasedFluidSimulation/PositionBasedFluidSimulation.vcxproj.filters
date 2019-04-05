@@ -87,5 +87,8 @@
     <None Include="shaders\calculate_delta_p.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
+    <None Include="shaders\partical_to_grid.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </None>
   </ItemGroup>
 </Project>

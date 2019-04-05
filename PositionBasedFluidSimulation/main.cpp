@@ -119,7 +119,7 @@ int main(void)
     std::cout << OpenGLVersion << std::endl;
     std::cout << OpenGLVender << std::endl;
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     glEnable(GL_DEPTH_TEST);
 
