@@ -55,6 +55,6 @@ void PBFRenderer::render()
     glBindVertexArray(_partical_vao_);
 
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details +2, _partical_count_);
-
+    
     glBindVertexArray(0);
 }

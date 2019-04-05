@@ -89,7 +89,7 @@ PBF::PBF(int partical_count, float partical_size, float fluid_density, float ker
     _partical_weight_(fluid_density*partical_size*partical_size*partical_size),
     _fluid_density_(fluid_density),
     _kernel_radius_(kernel_radius),
-    _grid_size_(kernel_radius *1.1),
+    _grid_size_(kernel_radius),
     _grid_count_edge_((int)(12 / (_grid_size_)) + 1),
     _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_),
     _cell_max_partical_count_(pow(static_cast<int>(kernel_radius*2 / _partical_size_) + 1, 3)*2)
@@ -158,25 +158,25 @@ void PBF::sim(double timestep)
     util::Timer t;
     t.tic();
     updateGrid();
-    //t.toc("Update Grid");
+    t.toc("Update Grid");
     for (int i = 0; i < 5; i++) {
         t.tic();
         copyPosToGrid();
-        //t.toc("Copy Pos");
+        t.toc("Copy Pos");
 
         t.tic();
         calculateLambda();
-        //t.toc("Cal Lambda");
+        t.toc("Cal Lambda");
 
         t.tic();
         calculateDeltaP();
-        //t.toc("Cal Pos Delta");
+        t.toc("Cal Pos Delta");
 
         t.tic();
         applyDensityConstraintPosDelta();
-        //t.toc("Apply Delta");
+        t.toc("Apply Delta");
     }
-    //std::cout << std::endl;
+    std::cout << std::endl;
 }
 
 void PBF::copyPosToGrid()

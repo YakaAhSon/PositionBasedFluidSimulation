@@ -14,6 +14,7 @@ layout(std430, binding = 1) buffer grid_partical_count_buffer {
     uint grid_partical_count[];
 };
 
+
 layout(std430, binding = 2) buffer grid_particals_buffer {
     struct {
         vec3 pos;
@@ -33,19 +34,20 @@ uniform int cellmaxparticalcount;
 
 uniform float kernel_radius;
 
+
 float POLY6(float r) {
-    float kernel_r2 = kernel_radius * kernel_radius;
-    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
+
+    float kernel_r2 = 0.1681;
+
     // 315/(64*pi*h^9)
-    return (kernel_r2 - r * r)*(kernel_r2 - r * r)*(kernel_r2 - r * r)*1.566681471 / kernel_r9;
+    return (kernel_r2 - r * r)*(kernel_r2 - r * r)*(kernel_r2 - r * r)*4785.48397271887;
 }
 float POLY6_gradient(float r) {
-    float kernel_r2 = kernel_radius * kernel_radius;
+    float kernel_r2 = 0.1681;
 
-    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
 
     // 945/(32*pi*h^9)
-    return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*9.40008826 / kernel_r9;
+    return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*28712.641146192094;
 }
 
 float scorr(float r) {
@@ -74,11 +76,14 @@ void main(void)
 
     ivec3 grid_v_min = ivec3((pos_min + vec3(6, 6, 6)) / cellsize);
     ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
-
     vec3 deltaP = vec3(0);
 
     // for each neighbiyr cell
-    for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
+    for (int i = 0; i < 27;i++) {
+
+        uint x = i % 3+grid_v_min.x;
+        uint y = (i / 3) % 3+grid_v_min.y;
+        uint z = (i / 9) % 3+grid_v_min.z;
 
         uint cellidx = z * grid_edge_count2 + y * grid_edge_count + x;
 
@@ -88,10 +93,12 @@ void main(void)
         for (uint i = 0; i < partical_count; i++) {
 
             uint neighbour_idx = grid_particals[cellidx*cellmaxparticalcount + i].index;
+            vec3 neighbour_pos = grid_particals[cellidx*cellmaxparticalcount + i].pos;
+
 
             if (neighbour_idx != gl_GlobalInvocationID.x) {
 
-                vec3 norm = pos - grid_particals[cellidx*cellmaxparticalcount + i].pos;
+                vec3 norm = pos - neighbour_pos;
 
                 float r = length(norm);
 
@@ -111,8 +118,7 @@ void main(void)
 
     }
     float l = length(deltaP);
-    if (l > 0.3) {
-        deltaP = deltaP / l * 0.3;
-    }
+    float dl = min(l, 0.3);
+    deltaP = deltaP / l * dl;
     pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP, 0);
 }

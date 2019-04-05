@@ -8,7 +8,7 @@
 #include"pbfrenderer.h"
 
 
-PBF pbf(32*1024, 0.2, 1000.0, 0.41);
+PBF pbf(64*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
 static void updateFPS() 
@@ -150,7 +150,7 @@ int main(void)
 
         renderer.render();
 
-        updateFPS();
+        //updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
