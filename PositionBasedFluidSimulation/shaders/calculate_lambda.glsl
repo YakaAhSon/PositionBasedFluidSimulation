@@ -31,19 +31,19 @@ uniform float kernel_radius;
 
 float POLY6(float r) {
 
-    float kernel_r2 = kernel_radius* kernel_radius;
-    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
+    float kernel_r2 = 0.1681;
+    float kernel_r9 = 0.0003273819343939608;
 
     // 315/(64*pi*h^9)
-    return (kernel_r2 - r*r)*(kernel_r2 - r*r)*(kernel_r2 - r*r)*1.566681 /kernel_r9;
+    return (kernel_r2 - r*r)*(kernel_r2 - r*r)*(kernel_r2 - r*r)*4785.48397271887;
 }
 float POLY6_gradient(float r) {
-    float kernel_r2 = kernel_radius * kernel_radius;
+    float kernel_r2 = 0.1681;
 
-    float kernel_r9 = kernel_r2 * kernel_r2 * kernel_r2 * kernel_r2 * kernel_radius;
+    float kernel_r9 = 0.0003273819343939608;
 
     // 945/(32*pi*h^9)
-    return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*9.40008826 / kernel_r9;
+    return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*28712.641146192094;
 }
 
 const float rho0 = 1000.0;
@@ -55,10 +55,13 @@ void main(void)
 
     vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
 
+    vec3 pos_min = pos - vec3(0.41);
+    vec3 pos_max = pos + vec3(0.41);
+
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
-    ivec3 grid_v_min = grid_v - ivec3(1);
-    ivec3 grid_v_max = grid_v + ivec3(1);
+    ivec3 grid_v_min = ivec3((pos_min + vec3(6, 6, 6)) / cellsize);
+    ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
 
     float rho = partical_weight*POLY6(0);
 

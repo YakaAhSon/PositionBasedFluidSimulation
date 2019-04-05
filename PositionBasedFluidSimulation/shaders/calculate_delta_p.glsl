@@ -48,8 +48,7 @@ float POLY6_gradient(float r) {
     return -r * (kernel_r2 - r * r)*(kernel_r2 - r * r)*9.40008826 / kernel_r9;
 }
 
-float scorr(vec3 p1, vec3 p2) {
-    float r = length(p1 - p2);
+float scorr(float r) {
     float tmp = POLY6(r) / POLY6(0.1*kernel_radius);
 
     return -0.1*tmp*tmp*tmp*tmp;
@@ -61,13 +60,20 @@ void main(void)
 {
 
     int grid_edge_count2 = grid_edge_count * grid_edge_count;
+    
+    vec4 pos_full = pos_curr[gl_GlobalInvocationID.x];
 
-    vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
+    float lambda_i = pos_full.w;
+
+    vec3 pos = pos_full.xyz;
+
+    vec3 pos_min = pos - vec3(0.41);
+    vec3 pos_max = pos + vec3(0.41);
 
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
-    ivec3 grid_v_min = grid_v - ivec3(1);
-    ivec3 grid_v_max = grid_v + ivec3(1);
+    ivec3 grid_v_min = ivec3((pos_min + vec3(6, 6, 6)) / cellsize);
+    ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
 
     vec3 deltaP = vec3(0);
 
@@ -91,9 +97,10 @@ void main(void)
 
                 if (r < kernel_radius) {
 
+                    float lambda_j = pos_curr[neighbour_idx].w;
                     float g = POLY6_gradient(r);
                     norm = norm / r * g;
-                    deltaP += norm * (pos_curr[gl_GlobalInvocationID.x].w + pos_curr[neighbour_idx].w + scorr(pos_curr[gl_GlobalInvocationID.x].xyz, pos_curr[neighbour_idx].xyz)) / rho0;
+                    deltaP += norm * (lambda_i+lambda_j + scorr(r)) / rho0;
 
                 }
 

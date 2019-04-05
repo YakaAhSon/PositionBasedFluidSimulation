@@ -150,7 +150,7 @@ int main(void)
 
         renderer.render();
 
-        //updateFPS();
+        updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
