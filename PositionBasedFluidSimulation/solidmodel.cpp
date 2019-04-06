@@ -45,3 +45,26 @@ void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
 
     glDispatchCompute(partical_count / 128, 1, 1);
 }
+
+void SolidModel::render(Camera& camera)
+{
+    static GLuint program = []() {
+        GLuint program = util::createProgram_VF(util::readFile("shaders\\mesh_render_vertex.glsl"),
+            util::readFile("shaders\\mesh_render_fragment.glsl"));
+        glBindAttribLocation(program, 0, "vVertex");
+        glBindAttribLocation(program, 1, "vNorm");
+        glLinkProgram(program);
+        return program;
+    }();
+
+    static GLuint mVPLocation = glGetUniformLocation(program, "mViewProjection");
+
+    glUseProgram(program);
+    glm::mat4 mVP = camera.getViewProjectionMatrix();
+
+    glUniformMatrix4fv(mVPLocation, 1,GL_FALSE, &mVP[0][0]);
+
+    glBindVertexArray(_vao_);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+    glBindVertexArray(0);
+}

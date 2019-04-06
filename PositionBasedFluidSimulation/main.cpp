@@ -149,6 +149,7 @@ int main(void)
             pbf.sim(timestep);
 
         renderer.render();
+        pbf.aball.render(renderer.camera);
 
         updateFPS();
         glfwSwapBuffers(window);
