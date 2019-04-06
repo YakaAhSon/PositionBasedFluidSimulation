@@ -11,6 +11,7 @@
 
 #include"utilities.h"
 
+#include"solidmodel.h"
 
 // simulate the fluid inside a box of (-5~5,-5~5,-5~5)
 
@@ -77,7 +78,7 @@ public:
 
 
 public:
-    
+    SolidModel aball;
 };
 
 #endif

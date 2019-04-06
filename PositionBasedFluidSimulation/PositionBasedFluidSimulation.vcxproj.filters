@@ -30,6 +30,9 @@
     <Filter Include="pbfrenderer">
       <UniqueIdentifier>{75e2b398-a22a-4412-a2e8-c550afeef057}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\solid_interaction">
+      <UniqueIdentifier>{31253478-0c83-4726-878c-ca3f33a14d47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,6 +101,9 @@
     </None>
     <None Include="shaders\partical_to_grid.glsl">
       <Filter>shaders\sim_kernel</Filter>
+    </None>
+    <None Include="shaders\solid_constraint.glsl">
+      <Filter>shaders\solid_interaction</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

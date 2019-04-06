@@ -8,18 +8,34 @@
 
 #include<vector>
 
-class SolidModel {
-public:
-    std::vector<glm::vec3>::iterator _partical_begin_;
-    std::vector<glm::vec3>::iterator _partical_end_;
-    int _partial_count_;
+// data structure in GPU
+#pragma pack(16)
+typedef  struct Voxel{
+    
+    glm::vec3 normal;// plane normal
+    int solid;
+    glm::vec3 point;// one point on the plane
 
-    virtual void init()=0;
+    int _padding_;
+
+}Voxel;
+
+class SolidModel {
+private:
+
+    
+    GLuint _voxel_buffer_;
+
+
+public:
+
+    void voxelize();
+
+    void runConstraint(GLuint partical_pos_buffer, int partical_count);
 };
 
-class SolidWall:public SolidModel {
-public:
-    virtual void init();
+class SolidBox {
+
 };
 
 #endif

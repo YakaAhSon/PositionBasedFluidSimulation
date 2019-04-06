@@ -165,13 +165,7 @@ void PBF::initialize()
     }
     _partical_pos_.resize(_partical_count_);
 
-    // left/right wall
-    for (float y = -6; y < 6; y += _partical_size_) {
-        for (float z = -6; z < 6; z += _partical_size_) {
-            _partical_pos_.push_back(glm::vec4(0, y, z, 0));
-            _partical_pos_.push_back(glm::vec4(-_partical_size_, y, z, 0));
-        }
-    }
+    
 
 
     glGenBuffers(1, &_buffer_partical_pos_prev_);
@@ -200,6 +194,7 @@ void PBF::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
+    aball.voxelize();
 }
 
 void PBF::sim(double timestep)
@@ -237,6 +232,7 @@ void PBF::sim(double timestep)
     predict();
     updateGrid();
     applyBoundaryConstraint();
+    aball.runConstraint(_buffer_partical_pos_curr_,_partical_count_);
     for (int i = 0; i < steps_per_frame; i++) {
         copyPosToGrid();
         calculateLambda();
