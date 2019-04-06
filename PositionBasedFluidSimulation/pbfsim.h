@@ -11,6 +11,7 @@
 
 #include"utilities.h"
 
+
 // simulate the fluid inside a box of (-5~5,-5~5,-5~5)
 
 class PBF 
@@ -31,13 +32,16 @@ private:
 
     std::vector<glm::vec4> _partical_pos_;
 
-    void runComputeShaderForEachPartical();
 private:
+
+    void runForAllParticals();
+
     void predict();
     void updateGrid();
     void calculateLambda();
     void calculateDeltaP();
     void applyDensityConstraintPosDelta();
+    void copyPosToGrid();
 
 public:
     PBF(int partical_count, float partical_size, float fluid_density, float kernel_radius);
@@ -66,82 +70,8 @@ public:
     GLuint getCurrPosVBO() { return _buffer_partical_pos_curr_; }
 
 
-// simulator kernels
-private:
-    class:public util::ComputeShader {
-    public:
-        virtual void initialize()override {
-            createProgram("shaders\\predict.glsl");
-
-        }
-    }_sim_predict_kernel_;
-
-    class:public util::ComputeShader {
-    public:
-        GLuint cell_size;
-        GLuint grid_edge_count;
-        GLuint grid_edge_count2;
-        GLuint cell_max_partical_count;
-
-        virtual void initialize()override {
-            createProgram("shaders\\update_grid.glsl");
-            cell_size = glGetUniformLocation(program, "cellsize");
-            grid_edge_count = glGetUniformLocation(program, "grid_edge_count");
-            cell_max_partical_count = glGetUniformLocation(program, "cellmaxparticalcount");
-            grid_edge_count2 = glGetUniformLocation(program, "grid_edge_count2");
-        }
-    }_sim_update_grid_kernel_;
-
-    class:public util::ComputeShader {
-    public:
-        virtual void initialize()override {
-            createProgram("shaders\\density_constraint_apply.glsl");
-        }
-    }_sim_apply_density_constraint_kernel_;
-
-    class:public util::ComputeShader {
-    public:
-        GLuint cellsize;
-        GLuint grid_edge_count;
-        GLuint cellmaxparticalcount;
-        GLuint kernel_radius;
-
-        virtual void initialize()override {
-            createProgram("shaders\\calculate_lambda.glsl");
-            cellsize = glGetUniformLocation(program, "cellsize");
-            grid_edge_count = glGetUniformLocation(program, "grid_edge_count");
-            cellmaxparticalcount = glGetUniformLocation(program, "cellmaxparticalcount");
-            kernel_radius = glGetUniformLocation(program, "kernel_radius");
-        }
-    }_sim_cal_lambda_kernel_;
-
-    class:public util::ComputeShader {
-    public:
-
-        GLuint cellsize;
-        GLuint grid_edge_count;
-        GLuint cellmaxparticalcount;
-        GLuint kernel_radius;
-
-        virtual void initialize()override {
-            createProgram("shaders\\calculate_delta_p.glsl");
-
-            cellsize = glGetUniformLocation(program, "cellsize");
-            grid_edge_count = glGetUniformLocation(program, "grid_edge_count");
-            cellmaxparticalcount = glGetUniformLocation(program, "cellmaxparticalcount");
-            kernel_radius = glGetUniformLocation(program, "kernel_radius");
-        }
-
-    }_sim_cal_delta_p_kernel_;
-
-    class :public util::ComputeShader {
-    public:
-        virtual void initialize()override {
-            createProgram("shaders\\partical_to_grid.glsl");
-
-        }
-    }_sim_partical_to_grid_;
-    void copyPosToGrid();
+public:
+    
 };
 
 #endif
