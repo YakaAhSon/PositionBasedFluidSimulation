@@ -16,7 +16,6 @@ layout(std430, binding = 2) buffer grid_particals_buffer {
     struct {
 
         vec3 pos;
-        uint index;
     } grid_particals[];
 };
 
@@ -48,7 +47,6 @@ void main(void)
 
     partical_index_in_cell = min(cellmaxparticalcount -1, partical_index_in_cell);
 
-    grid_particals[grid_idx * cellmaxparticalcount + partical_index_in_cell].index = gl_GlobalInvocationID.x;
     partical_grid_index[gl_GlobalInvocationID.x] = grid_idx * cellmaxparticalcount + partical_index_in_cell;
 
 }

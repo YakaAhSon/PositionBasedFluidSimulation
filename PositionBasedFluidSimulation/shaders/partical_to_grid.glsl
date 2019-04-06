@@ -14,9 +14,7 @@ layout(std430, binding = 1) buffer grid_partical_count_buffer {
 
 layout(std430, binding = 2) buffer grid_particals_buffer {
     struct {
-
         vec3 pos;
-        uint index;
     } grid_particals[];
 };
 

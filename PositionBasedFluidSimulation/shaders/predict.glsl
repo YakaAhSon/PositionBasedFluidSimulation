@@ -25,7 +25,7 @@ void main(void)
 
     pos_prev[gl_GlobalInvocationID.x] = tmp;
 
-    pos = max(pos, float(-5.0));
-    pos = min(pos, float(5.0));
+    pos = max(pos, vec4(-5.0));
+    pos = min(pos, vec4(5.0));
     pos_curr[gl_GlobalInvocationID.x] = pos;
 }

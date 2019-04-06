@@ -53,6 +53,7 @@ void PBF::calculateLambda()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
 
     runComputeShaderForEachPartical();
 }
@@ -71,6 +72,7 @@ void PBF::calculateDeltaP()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_pos_delta_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, _buffer_partical_grid_index_);
 
     runComputeShaderForEachPartical();
 }
@@ -154,30 +156,31 @@ void PBF::initialize()
 
 void PBF::sim(double timestep)
 {
-    predict();
-
     util::Timer t;
+    predict();
+    t.toc("Predict");
+
     t.tic();
     updateGrid();
-    //t.toc("Update Grid");
+    t.toc("Update Grid");
     for (int i = 0; i < 5; i++) {
         t.tic();
         copyPosToGrid();
-        //t.toc("Copy Pos");
+        t.toc("Copy Pos");
 
         t.tic();
         calculateLambda();
-        //t.toc("Cal Lambda");
+        t.toc("Cal Lambda");
 
         t.tic();
         calculateDeltaP();
-        //t.toc("Cal Pos Delta");
+        t.toc("Cal Pos Delta");
 
         t.tic();
         applyDensityConstraintPosDelta();
-        //t.toc("Apply Delta");
+        t.toc("Apply Delta");
     }
-    //std::cout << std::endl;
+    std::cout << std::endl;
 }
 
 void PBF::copyPosToGrid()
