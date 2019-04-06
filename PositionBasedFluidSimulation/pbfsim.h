@@ -47,6 +47,7 @@ private:
     void calculateDeltaP();
     void applyDensityConstraintPosDelta();
     void copyPosToGrid();
+    void applyBoundaryConstraint();
 
 public:
     PBF(int partical_count, float partical_size, float fluid_density, float kernel_radius);

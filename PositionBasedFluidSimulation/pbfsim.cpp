@@ -12,19 +12,12 @@ using namespace util;
 void PBF::predict()
 {
     static GLuint program = createProgram_C(readFile("shaders\\predict.glsl"));
-    bindUniformLocation(left_boundary);
 
 
     glUseProgram(program);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_partical_pos_prev_);
 
-    static float timer = 0;
-
-    float left = -7.0 - glm::cos(timer);
-
-    glUniform1f(left_boundary, left);
-    timer += 1 / 20.0;
     runForAllParticals();
 }
 
@@ -52,6 +45,24 @@ void PBF::updateGrid()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
 
+    runForAllParticals();
+}
+
+void PBF::applyBoundaryConstraint()
+{
+    static GLuint program = createProgram_C(readFile("shaders\\boundary_constraint.glsl"));
+    bindUniformLocation(left_boundary);
+
+
+    glUseProgram(program);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
+
+    static float timer = 0;
+
+    float left = -7.0 - glm::cos(timer);
+
+    glUniform1f(left_boundary, left);
+    timer += 1 / 20.0;
     runForAllParticals();
 }
 
@@ -195,7 +206,7 @@ void PBF::sim(double timestep)
 {
     constexpr int steps_per_frame = 5;
 
-#define SHOW_KERNEL_TIMES
+//#define SHOW_KERNEL_TIMES
 
 #if defined SHOW_KERNEL_TIMES
     util::Timer t;
@@ -204,6 +215,9 @@ void PBF::sim(double timestep)
     t.tic();
     updateGrid();
     t.toc("Update Grid");
+
+    applyBoundaryConstraint();
+
     for (int i = 0; i < steps_per_frame; i++) {
         t.tic();
         copyPosToGrid();
@@ -222,6 +236,7 @@ void PBF::sim(double timestep)
 #else
     predict();
     updateGrid();
+    applyBoundaryConstraint();
     for (int i = 0; i < steps_per_frame; i++) {
         copyPosToGrid();
         calculateLambda();

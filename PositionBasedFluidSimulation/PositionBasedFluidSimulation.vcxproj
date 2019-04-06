@@ -132,6 +132,7 @@
     <ClCompile Include="pbfsim.cpp" />
     <ClCompile Include="pbfrenderer.cpp" />
     <ClCompile Include="solidmodel.cpp" />
+    <ClCompile Include="solidwall.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,9 @@
     <None Include="shaders\partical_to_grid.glsl" />
     <None Include="shaders\predict.glsl" />
     <None Include="shaders\update_grid.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\boundary_constraint.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

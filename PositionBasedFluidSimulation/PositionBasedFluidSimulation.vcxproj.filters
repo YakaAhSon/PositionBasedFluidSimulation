@@ -50,6 +50,9 @@
     <ClCompile Include="solidmodel.cpp">
       <Filter>pbfsim</Filter>
     </ClCompile>
+    <ClCompile Include="solidwall.cpp">
+      <Filter>pbfsim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">
@@ -96,5 +99,10 @@
     <None Include="shaders\partical_to_grid.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="shaders\boundary_constraint.glsl">
+      <Filter>shaders\sim_kernel</Filter>
+    </Text>
   </ItemGroup>
 </Project>
