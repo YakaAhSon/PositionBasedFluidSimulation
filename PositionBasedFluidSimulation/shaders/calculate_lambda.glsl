@@ -29,13 +29,13 @@ uniform int cellmaxparticalcount;
 
 uniform float kernel_radius;
 
-float POLY6(float r) {
+float POLY6(float r2) {
 
     float kernel_r2 = 0.1681;
     float kernel_r9 = 0.0003273819343939608;
 
     // 315/(64*pi*h^9)
-    return (kernel_r2 - r*r)*(kernel_r2 - r*r)*(kernel_r2 - r*r)*4785.48397271887;
+    return (kernel_r2 - r2)*(kernel_r2 - r2)*(kernel_r2 - r2)*4785.48397271887;
 }
 float POLY6_gradient(float r) {
     float kernel_r2 = 0.1681;
@@ -55,8 +55,8 @@ void main(void)
 
     vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
 
-    vec3 pos_min = pos - vec3(0.41);
-    vec3 pos_max = pos + vec3(0.41);
+    vec3 pos_min = pos - vec3(kernel_radius*0.8);
+    vec3 pos_max = pos + vec3(kernel_radius*0.8);
 
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
@@ -68,6 +68,8 @@ void main(void)
     vec3 gradient_i = vec3(0);
     float gradient_j_2 = 0;
 
+    float kernel_radius2 = kernel_radius * kernel_radius;
+
     // for each neighbour cell
     for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
 
@@ -77,17 +79,23 @@ void main(void)
 
         // for each partical in the neightbour cell
         for (uint i = 0; i < partical_count; i++) {
+            
+            struct {
+                vec3 pos;
+                uint index;
+            }neighbour = grid_particals[cellidx*cellmaxparticalcount + i];
+            //uint neighbour_idx = 0;
+            if (neighbour.index != gl_GlobalInvocationID.x) {
 
-            uint neighbour_idx = grid_particals[cellidx*cellmaxparticalcount + i].index;
-            if (neighbour_idx != gl_GlobalInvocationID.x) {
+                vec3 norm = neighbour.pos - pos;
 
-                vec3 norm = grid_particals[cellidx*cellmaxparticalcount + i].pos - pos;
+                float r2 = dot(norm, norm);
 
-                float r = length(norm);
+                if (r2 < kernel_radius2) {
 
-                if (r < kernel_radius) {
+                    float r = sqrt(r2);
 
-                    rho += partical_weight * POLY6(r);
+                    rho += partical_weight * POLY6(r2);
 
                     r = max(r, 0.00001);
                     norm = norm / r;// normalize

@@ -51,7 +51,7 @@ float POLY6_gradient(float r) {
 }
 
 float scorr(float r) {
-    float tmp = POLY6(r) / POLY6(0.1*kernel_radius);
+    float tmp = POLY6(r) / POLY6(0.*kernel_radius);
 
     return -0.1*tmp*tmp*tmp*tmp;
 }
@@ -69,8 +69,8 @@ void main(void)
 
     vec3 pos = pos_full.xyz;
 
-    vec3 pos_min = pos - vec3(0.41);
-    vec3 pos_max = pos + vec3(0.41);
+    vec3 pos_min = pos - vec3(kernel_radius*0.8);
+    vec3 pos_max = pos + vec3(kernel_radius*0.8);
 
     ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
 
@@ -78,12 +78,11 @@ void main(void)
     ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
     vec3 deltaP = vec3(0);
 
-    // for each neighbiyr cell
-    for (int i = 0; i < 27;i++) {
+    float kernel_radius2 = kernel_radius * kernel_radius;
 
-        uint x = i % 3+grid_v_min.x;
-        uint y = (i / 3) % 3+grid_v_min.y;
-        uint z = (i / 9) % 3+grid_v_min.z;
+    // for each neighbiyr cell
+
+    for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
 
         uint cellidx = z * grid_edge_count2 + y * grid_edge_count + x;
 
@@ -92,19 +91,21 @@ void main(void)
         // for each partical in the neightbour cell
         for (uint i = 0; i < partical_count; i++) {
 
-            uint neighbour_idx = grid_particals[cellidx*cellmaxparticalcount + i].index;
-            vec3 neighbour_pos = grid_particals[cellidx*cellmaxparticalcount + i].pos;
+            struct {
+                vec3 pos;
+                uint index;
+            }neighbour = grid_particals[cellidx*cellmaxparticalcount + i];
 
 
-            if (neighbour_idx != gl_GlobalInvocationID.x) {
+            if (neighbour.index != gl_GlobalInvocationID.x) {
 
-                vec3 norm = pos - neighbour_pos;
+                vec3 norm = pos - neighbour.pos;
 
-                float r = length(norm);
+                float r2 = dot(norm,norm);
 
-                if (r < kernel_radius) {
-
-                    float lambda_j = pos_curr[neighbour_idx].w;
+                if (r2 < kernel_radius2) {
+                    float r = sqrt(r2);
+                    float lambda_j = pos_curr[neighbour.index].w;
                     float g = POLY6_gradient(r);
                     norm = norm / r * g;
                     deltaP += norm * (lambda_i+lambda_j + scorr(r)) / rho0;

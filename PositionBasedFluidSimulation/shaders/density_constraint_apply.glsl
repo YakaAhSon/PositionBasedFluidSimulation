@@ -9,15 +9,11 @@ layout(std430, binding = 0) buffer pos_curr_buffer {
     vec4 pos_curr[];
 };
 
-layout(std430, binding = 1) buffer grid_buffer {
-    uint grid[];
-};
-
 layout(std430, binding = 2) buffer pos_delta_buffer {
     vec4 pos_delta[];
 };
 
 void main(void)
 {
-    pos_curr[gl_GlobalInvocationID.x] +=  pos_delta[gl_GlobalInvocationID.x];
+    pos_curr[gl_GlobalInvocationID.x].xyz +=  pos_delta[gl_GlobalInvocationID.x].xyz;
 }

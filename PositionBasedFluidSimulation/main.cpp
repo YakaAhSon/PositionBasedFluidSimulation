@@ -8,7 +8,7 @@
 #include"pbfrenderer.h"
 
 
-PBF pbf(64*1024, 0.2, 800.0, 0.35);
+PBF pbf(50*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
 static void updateFPS() 
@@ -119,7 +119,7 @@ int main(void)
     std::cout << OpenGLVersion << std::endl;
     std::cout << OpenGLVender << std::endl;
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -150,7 +150,7 @@ int main(void)
 
         renderer.render();
 
-        //updateFPS();
+        updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
