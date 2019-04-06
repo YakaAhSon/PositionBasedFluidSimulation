@@ -186,7 +186,7 @@ void PBF::sim(double timestep)
 {
     constexpr int steps_per_frame = 5;
 
-//#define SHOW_KERNEL_TIMES
+#define SHOW_KERNEL_TIMES
 
 #if defined SHOW_KERNEL_TIMES
     util::Timer t;

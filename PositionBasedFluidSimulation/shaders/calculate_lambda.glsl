@@ -94,13 +94,13 @@ void main(void)
             float r2 = dot(norm, norm);
 
 
-            if (r2 < kernel_radius2&& r2>0.0000001) {
+            if (r2 < kernel_radius2&& r2>0.00001) {
 
                 float r = sqrt(r2);
 
                 rho += partical_weight * POLY6(r2);
 
-                r = max(r, 0.00001);
+                r = max(r, 0.001);
                 norm = norm / r;// normalize
 
                 float g = POLY6_gradient(r);

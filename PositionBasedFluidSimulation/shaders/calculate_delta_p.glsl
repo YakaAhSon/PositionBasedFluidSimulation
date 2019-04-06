@@ -109,7 +109,7 @@ void main(void)
                 float lambda_j = neighbour.lambda;
                 float g = POLY6_gradient(r2);
                 norm = norm * g;
-                deltaP += norm * (lambda_i + lambda_j + scorr(r2)) / rho0;
+                deltaP += norm * (lambda_i + lambda_j+scorr(r2)) / rho0;
 
             }
 
@@ -119,8 +119,5 @@ void main(void)
 
 
     }
-    float l = length(deltaP);
-    float dl = min(l, 0.3);
-    deltaP = deltaP / l * dl;
-    pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP, 0);
+    pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP*0.5, 0);
 }
