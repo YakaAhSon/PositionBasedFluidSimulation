@@ -31,12 +31,12 @@ uniform int grid_edge_count2;
 
 
 int getGridIdx(vec3 v) {
-    ivec3 iv = ivec3((v + vec3(6, 6, 6)) / cellsize);
+    ivec3 iv = ivec3((v + vec3(12, 6, 6)) / cellsize);
 
     iv = max(iv, ivec3(0, 0, 0));
-    iv = min(iv, ivec3(grid_edge_count - 1));
+    iv = min(iv, ivec3(grid_edge_count*2 - 1,grid_edge_count-1,grid_edge_count-1));
 
-    return iv.z*grid_edge_count2 + iv.y*grid_edge_count + iv.x;
+    return iv.z*grid_edge_count2*2 + iv.y*grid_edge_count*2 + iv.x;
 }
 
 void main(void)

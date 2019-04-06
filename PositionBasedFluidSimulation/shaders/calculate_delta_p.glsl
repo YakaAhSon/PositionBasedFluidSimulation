@@ -65,19 +65,17 @@ const float rho0 = 1000.0;
 void main(void)
 {
 
-    int grid_edge_count2 = grid_edge_count * grid_edge_count;
+    int grid_edge_count2 = grid_edge_count * grid_edge_count * 2;
 
     vec4 pos_full = pos_curr[gl_GlobalInvocationID.x];
 
     vec3 pos = pos_full.xyz;
 
-    vec3 pos_min = pos - vec3(kernel_radius*0.8);
-    vec3 pos_max = pos + vec3(kernel_radius*0.8);
+    vec3 pos_min = pos - vec3(kernel_radius*0.9);
+    vec3 pos_max = pos + vec3(kernel_radius*0.9);
 
-    ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
-
-    ivec3 grid_v_min = ivec3((pos_min + vec3(6, 6, 6)) / cellsize);
-    ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
+    ivec3 grid_v_min = ivec3((pos_min + vec3(12, 6, 6)) / cellsize);
+    ivec3 grid_v_max = ivec3((pos_max + vec3(12, 6, 6)) / cellsize);
     vec3 deltaP = vec3(0);
 
     float kernel_radius2 = kernel_radius * kernel_radius;
@@ -89,7 +87,7 @@ void main(void)
 
     for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
 
-        uint cellidx = z * grid_edge_count2 + y * grid_edge_count + x;
+        uint cellidx = z * grid_edge_count2 + y * grid_edge_count*2 + x;
 
         uint partical_count = grid_partical_count[cellidx];
 

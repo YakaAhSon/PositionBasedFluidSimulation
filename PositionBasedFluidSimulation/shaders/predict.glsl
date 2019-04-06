@@ -15,6 +15,8 @@ layout(std430, binding = 1) buffer pos_prev_buffer {
 };
 
 
+uniform float left_boundary;
+
 void main(void)
 {
     vec4 tmp = pos_curr[gl_GlobalInvocationID.x];
@@ -25,7 +27,8 @@ void main(void)
 
     pos_prev[gl_GlobalInvocationID.x] = tmp;
 
-    pos = max(pos, vec4(-5.0));
-    pos = min(pos, vec4(5.0));
+    pos = max(pos, vec4(left_boundary ,-5.0,-5.0,0.0));
+
+    pos = min(pos, vec4(7.0, 5.0, 5.0, 0.0));
     pos_curr[gl_GlobalInvocationID.x] = pos;
 }

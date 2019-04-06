@@ -12,11 +12,19 @@ using namespace util;
 void PBF::predict()
 {
     static GLuint program = createProgram_C(readFile("shaders\\predict.glsl"));
+    bindUniformLocation(left_boundary);
+
 
     glUseProgram(program);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_partical_pos_prev_);
 
+    static float timer = 0;
+
+    float left = -7.0 - glm::cos(timer);
+
+    glUniform1f(left_boundary, left);
+    timer += 1 / 20.0;
     runForAllParticals();
 }
 
@@ -127,7 +135,7 @@ PBF::PBF(int partical_count, float partical_size, float fluid_density, float ker
     _kernel_radius_(kernel_radius),
     _grid_size_(kernel_radius),
     _grid_count_edge_((int)(12 / (_grid_size_)) + 1),
-    _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_),
+    _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_*2),
     _cell_max_partical_count_(pow(static_cast<int>(kernel_radius*2 / _partical_size_) + 1, 3)*2)
     
 {

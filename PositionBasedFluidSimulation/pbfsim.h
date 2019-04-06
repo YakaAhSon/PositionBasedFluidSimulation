@@ -27,7 +27,7 @@ private:
 
     const float _grid_size_;// = _kernel_size_ * 0.7 #(_kernel_size_*0.5 should be sufficient)
     const int _grid_count_edge_;// ((int)(12/(_grid_size_))+1)
-    const int _grid_count_; // _grid_count_edge_^3
+    const int _grid_count_; // _grid_count_edge_^3*2
     const int _cell_max_partical_count_; // (_kernel_size_ / _grid_size_ + 2)^3 * 2
 
     std::vector<glm::vec4> _partical_pos_;

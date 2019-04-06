@@ -55,17 +55,15 @@ const float partical_weight = 8.0;// rho0*0.1*0.1*0.1
 
 void main(void)
 {
-    int grid_edge_count2 = grid_edge_count * grid_edge_count;
+    int grid_edge_count2 = grid_edge_count * grid_edge_count * 2;
 
     vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
 
-    vec3 pos_min = pos - vec3(kernel_radius*0.8);
-    vec3 pos_max = pos + vec3(kernel_radius*0.8);
+    vec3 pos_min = pos - vec3(kernel_radius*0.9);
+    vec3 pos_max = pos + vec3(kernel_radius*0.9);
 
-    ivec3 grid_v = ivec3((pos + vec3(6, 6, 6)) / cellsize);
-
-    ivec3 grid_v_min = ivec3((pos_min + vec3(6, 6, 6)) / cellsize);
-    ivec3 grid_v_max = ivec3((pos_max + vec3(6, 6, 6)) / cellsize);
+    ivec3 grid_v_min = ivec3((pos_min + vec3(12, 6, 6)) / cellsize);
+    ivec3 grid_v_max = ivec3((pos_max + vec3(12, 6, 6)) / cellsize);
 
     float rho = partical_weight * POLY6(0);
 
@@ -78,7 +76,7 @@ void main(void)
     // for each neighbour cell
     for (int x = grid_v_min.x; x <= grid_v_max.x; x++)for (int y = grid_v_min.y; y <= grid_v_max.y; y++)for (int z = grid_v_min.z; z <= grid_v_max.z; z++) {
 
-        uint cellidx = z * grid_edge_count2 + y * grid_edge_count + x;
+        uint cellidx = z * grid_edge_count2 + y * grid_edge_count*2 + x;
 
         uint partical_count = grid_partical_count[cellidx];
 
