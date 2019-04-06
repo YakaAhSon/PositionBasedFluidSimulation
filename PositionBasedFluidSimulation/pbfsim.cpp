@@ -152,6 +152,15 @@ void PBF::initialize()
             }
         }
     }
+    _partical_pos_.resize(_partical_count_);
+
+    // left/right wall
+    for (float y = -6; y < 6; y += _partical_size_) {
+        for (float z = -6; z < 6; z += _partical_size_) {
+            _partical_pos_.push_back(glm::vec4(0, y, z, 0));
+            _partical_pos_.push_back(glm::vec4(-_partical_size_, y, z, 0));
+        }
+    }
 
 
     glGenBuffers(1, &_buffer_partical_pos_prev_);

@@ -18,6 +18,11 @@ class PBF
 {
 private:
     
+    // solid particals
+    // not constant, because it depends on the scene
+    int _solid_partical_count_;
+
+    // fluid particals
     const int _partical_count_;
     const float _partical_weight_;
     const float _fluid_density_;

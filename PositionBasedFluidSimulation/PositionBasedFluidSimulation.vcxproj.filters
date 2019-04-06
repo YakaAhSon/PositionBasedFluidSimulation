@@ -47,6 +47,9 @@
     <ClCompile Include="pbfrenderer.cpp">
       <Filter>pbfrenderer</Filter>
     </ClCompile>
+    <ClCompile Include="solidmodel.cpp">
+      <Filter>pbfsim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">
@@ -63,6 +66,9 @@
     </ClInclude>
     <ClInclude Include="pbfrenderer.h">
       <Filter>pbfrenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="solidmodel.h">
+      <Filter>pbfsim</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

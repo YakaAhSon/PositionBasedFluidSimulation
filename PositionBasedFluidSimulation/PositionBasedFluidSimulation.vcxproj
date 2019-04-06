@@ -131,6 +131,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pbfsim.cpp" />
     <ClCompile Include="pbfrenderer.cpp" />
+    <ClCompile Include="solidmodel.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
     <ClInclude Include="pbfrenderer.h" />
     <ClInclude Include="pbfsim.h" />
     <ClInclude Include="predef.h" />
+    <ClInclude Include="solidmodel.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
