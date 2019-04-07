@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GLM_ENABLE_EXPERIMENTAL
 #define GLM_ENABLE_EXPERIMENTAL
 #endif
@@ -15,8 +16,11 @@
 #define GLM_FORCE_RADIANS
 #endif
 
+#define GLM_GTC_quaternion 
+
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>
+#include<glm/gtc/quaternion.hpp>
 #include<glm/ext.hpp>
 
 #include<glad/glad.h>

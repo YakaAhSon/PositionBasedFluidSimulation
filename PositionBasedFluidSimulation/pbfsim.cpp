@@ -194,11 +194,15 @@ void PBF::initialize()
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
     aball.loadModel("assets\\bunny.obj");
+    aball.setMass(100.0);
     aball.voxelize();
 }
 
 void PBF::sim(double timestep)
 {
+
+    aball.predict();
+
     constexpr int steps_per_frame = 5;
 
 //#define SHOW_KERNEL_TIMES

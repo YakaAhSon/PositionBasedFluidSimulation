@@ -132,6 +132,7 @@
     <ClCompile Include="pbfsim.cpp" />
     <ClCompile Include="pbfrenderer.cpp" />
     <ClCompile Include="solidmodel.cpp" />
+    <ClCompile Include="solidmodeldynamics.cpp" />
     <ClCompile Include="solidmodelloader.cpp" />
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>

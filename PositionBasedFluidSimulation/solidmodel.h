@@ -50,15 +50,36 @@ private:
 private:
     // dynamics
     bool _fixed_;
-    glm::vec3 _COM_;
+    glm::vec3 _COM_local_;// center of mass in local coordinate
+    glm::vec3 _COM_;// center of mass in global coordinate
+
+    const glm::vec3 centerOfGeometry() const { return _COM_ - _COM_local_; }
+
     glm::quat _orientation_;
 
-    glm::vec3 _velocity_;
-    glm::vec3 _anglar_velocity_;
+    glm::vec3 _COM_prev_;
+    glm::quat _orientation_prev_;
+
+    glm::mat4 _mModel_;
+    glm::mat3 _mModelRot_;
+    glm::mat4 _mView_;
+
+    float _mass_;
+    glm::mat3 _inverse_inertia_tensor_;
+    glm::mat3 _inertia_tensor_;
+    glm::mat3 _inertia_tensor_vmass_;// inertia tensor divided by vertex mass (assume vertex mass = 1)
+
 public:
     // dynamics
     void predict();
-    void updateVelocity();
+    void positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth);
+
+    void setMass(float mass);
+    void updateModelViewMatrices();
+
+    const glm::mat4& getMModel()const { return _mModel_; }
+    const glm::mat4& getMView()const { return _mView_; }
+
 
 public:
 

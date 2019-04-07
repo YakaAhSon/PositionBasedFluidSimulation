@@ -56,6 +56,9 @@
     <ClCompile Include="solidmodelloader.cpp">
       <Filter>pbfsim</Filter>
     </ClCompile>
+    <ClCompile Include="solidmodeldynamics.cpp">
+      <Filter>pbfsim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">

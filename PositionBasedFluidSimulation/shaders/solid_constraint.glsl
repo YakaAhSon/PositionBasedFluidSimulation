@@ -22,9 +22,12 @@ uniform ivec3 voxelSpaceSize;
 uniform float voxelSize;
 
 
+uniform mat4 mView;
+uniform mat3 mModelRot;
+
 void main(void)
 {
-    vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz + vec3(0, 2, 0);
+    vec3 pos = (mView * vec4(pos_curr[gl_GlobalInvocationID.x].xyz, 1.0)).xyz;
 
 
     ivec3 ipos = ivec3((pos - bBoxMin)/ voxelSize);
@@ -41,5 +44,5 @@ void main(void)
     
     vec3 delta = dot(voxel.pos - pos, voxel.norm)*voxel.norm;
 
-    pos_curr[gl_GlobalInvocationID.x].xyz += delta;
+    pos_curr[gl_GlobalInvocationID.x].xyz += mModelRot*delta;
 }

@@ -81,6 +81,43 @@ void SolidModel::loadModel(const std::string& filename) {
 
     _voxel_space_size_ = glm::ivec3((_bmax_ - _bmin_) / _voxel_size_);
 
+    // init pos and orientation
+    _COM_ = glm::vec3(0);
+    for (auto& v : _mesh_) {
+        _COM_ += v.pos;
+    }
+    _COM_ = _COM_ / (float)_mesh_.size();
+    _COM_prev_ = _COM_;
+    _COM_local_ = _COM_;
+
+    _orientation_ = _orientation_prev_ = glm::quat_identity<float,glm::qualifier::highp>();
+
+    // init inertia tensor
+    float Ixx = 0;
+    float Iyy = 0;
+    float Izz = 0;
+    float Ixy = 0;
+    float Iyz = 0;
+    float Izx = 0;
+
+    for (const auto& v : _mesh_) {
+        float x, y, z;
+        x = v.pos.x;
+        y = v.pos.y;
+        z = v.pos.z;
+        Ixx += y * y + z * z;
+        Iyy += x * x + z * z;
+        Izz += x * x + y * y;
+        Ixy -= x * y;
+        Iyz -= y * z;
+        Izx -= z * x;
+    }
+    _inertia_tensor_vmass_ = {
+        {Ixx,Ixy,Izx},
+        {Ixy,Iyy,Iyz},
+        {Izx,Iyz,Izz}
+    };
+    
     glGenVertexArrays(1, &_vao_);
     glBindVertexArray(_vao_);
     glGenBuffers(1, &_vbo_);

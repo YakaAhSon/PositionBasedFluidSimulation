@@ -2,15 +2,6 @@
 
 #include"utilities.h"
 
-
-void SolidModel::predict()
-{
-}
-
-void SolidModel::updateVelocity()
-{
-}
-
 void SolidModel::voxelize()
 {
     static GLuint program = []() {
@@ -63,10 +54,13 @@ void SolidModel::voxelize()
 
 void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
 {
+    updateModelViewMatrices();
     static GLuint program = util::createProgram_C(util::readFile("shaders\\solid_constraint.glsl"));
     bindUniformLocation(bBoxMin);
     bindUniformLocation(voxelSpaceSize);
     bindUniformLocation(voxelSize);
+    bindUniformLocation(mView);
+    bindUniformLocation(mModelRot);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_pos_buffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _voxel_buffer_);
@@ -75,12 +69,17 @@ void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
     glUniform3fv(bBoxMin, 1, &_bmin_[0]);
     glUniform3iv(voxelSpaceSize, 1, &_voxel_space_size_[0]);
     glUniform1f(voxelSize, _voxel_size_);
+    glUniformMatrix4fv(mView, 1, GL_FALSE, &_mView_[0][0]);
+    glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &_mModelRot_[0][0]);
 
     glDispatchCompute(partical_count / 128, 1, 1);
 }
 
 void SolidModel::render(Camera& camera)
 {
+
+    updateModelViewMatrices();
+
     static GLuint program = []() {
         GLuint program = util::createProgram_VF(util::readFile("shaders\\mesh_render_vertex.glsl"),
             util::readFile("shaders\\mesh_render_fragment.glsl"));
@@ -90,12 +89,12 @@ void SolidModel::render(Camera& camera)
         return program;
     }();
 
-    static GLuint mVPLocation = glGetUniformLocation(program, "mViewProjection");
+    static GLuint mVPLocation = glGetUniformLocation(program, "mMVP");
 
     glUseProgram(program);
-    glm::mat4 mVP = camera.getViewProjectionMatrix();
+    glm::mat4 mMVP = camera.getViewProjectionMatrix()*getMModel();
 
-    glUniformMatrix4fv(mVPLocation, 1,GL_FALSE, &mVP[0][0]);
+    glUniformMatrix4fv(mVPLocation, 1,GL_FALSE, &mMVP[0][0]);
 
     glBindVertexArray(_vao_);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
