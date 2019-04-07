@@ -238,6 +238,8 @@ void PBF::sim(double timestep)
         calculateLambda();
         calculateDeltaP();
         applyDensityConstraintPosDelta();
+
+        aball.runConstraint(_buffer_partical_pos_curr_, _partical_count_);
     }
 #endif
 
