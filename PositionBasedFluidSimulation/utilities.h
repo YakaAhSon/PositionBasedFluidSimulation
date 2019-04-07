@@ -15,6 +15,9 @@
 #define DEBUG_LOG(x)
 #endif
 
+
+#define bindUniformLocation(name) static GLuint name = glGetUniformLocation(program,#name)
+
 namespace util {
     GLuint createShader(const char* source, GLenum type, const char* errinfo = "");
     void linkProgram(GLuint program, const char* errinfo = "");

@@ -154,6 +154,8 @@
     <None Include="shaders\partical_to_grid.glsl" />
     <None Include="shaders\predict.glsl" />
     <None Include="shaders\solid_constraint.glsl" />
+    <None Include="shaders\solid_genvoxel_fragment.glsl" />
+    <None Include="shaders\solid_genvoxel_vertex.glsl" />
     <None Include="shaders\update_grid.glsl" />
   </ItemGroup>
   <ItemGroup>

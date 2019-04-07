@@ -121,16 +121,21 @@ int main(void)
 
     glfwSwapInterval(1);
 
-    glEnable(GL_DEPTH_TEST);
-
-    glEnable(GL_MULTISAMPLE);
 
     pbf.initialize();
+
 
     renderer.initialize(pbf.getCurrPosVBO(), pbf.getParticalCount());
 
     renderer.camera.moveForward(-10.0);
     renderer.camera.moveUp(1.0);
+
+
+
+    glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_MULTISAMPLE);
+    glViewport(0, 0, 512, 512);
 
     while (!glfwWindowShouldClose(window)) 
     {

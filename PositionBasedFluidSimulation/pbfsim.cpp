@@ -7,7 +7,6 @@
 
 using namespace util;
 
-#define bindUniformLocation(name) static GLuint name = glGetUniformLocation(program,#name)
 
 void PBF::predict()
 {
@@ -194,7 +193,8 @@ void PBF::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
-    aball.loadModel("assets\\box.obj");
+    aball.loadModel("assets\\bunny.obj");
+    aball.voxelize();
 }
 
 void PBF::sim(double timestep)

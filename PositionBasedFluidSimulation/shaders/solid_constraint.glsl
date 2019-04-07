@@ -17,25 +17,26 @@ layout(std430, binding = 1) buffer voxel_buffer {
     }voxels[];
 };
 
+uniform vec3 bBoxMin;
+uniform ivec3 voxelSpaceSize;
+uniform float voxelSize;
+
 
 void main(void)
 {
-    vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
-
-    pos = pos - vec3(3, -4, 0);
+    vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz + vec3(0, 2, 0);
 
 
-    if (length(pos) >= 2)return;
+    ivec3 ipos = ivec3((pos - bBoxMin)/ voxelSize);
 
-    ivec3 ipos = ivec3((pos + vec3(2)) * 10);
-    if (ipos.x < 0 || ipos.x >= 40 || ipos.y < 0 || ipos.y >= 40 || ipos.z < 0 || ipos.z >= 40)return;
+    if (any(lessThan(ipos, ivec3(0))) || any(greaterThanEqual(ipos, voxelSpaceSize)))return;
 
     struct {
         vec3 norm;// plane normal
         int solid;
         vec3 pos;// one point on the plane
         int _padding_;
-    } voxel = voxels[ipos.x * 1600 + ipos.y*40 + ipos.z];
+    } voxel = voxels[ipos.x * voxelSpaceSize.y*voxelSpaceSize.z + ipos.y*voxelSpaceSize.z + ipos.z];
 
     
     vec3 delta = dot(voxel.pos - pos, voxel.norm)*voxel.norm;

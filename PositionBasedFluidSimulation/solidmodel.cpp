@@ -2,46 +2,73 @@
 
 #include"utilities.h"
 
-static Voxel voxel[40][40][40];
 
 void SolidModel::voxelize()
 {
+    static GLuint program = []() {
+        GLuint program = util::createProgram_VF(
+            util::readFile("shaders\\solid_genvoxel_vertex.glsl"),
+            util::readFile("shaders\\solid_genvoxel_fragment.glsl")
+        );
+        glBindAttribLocation(program, 0, "vVertex");
+        glBindAttribLocation(program, 1, "vNormal");
+        util::linkProgram(program);
+        return program;
+    }(); 
 
-    for (int x = 0; x < 40; x++) {
-        for (int y = 0; y < 40; y++) {
-            for (int z = 0; z < 40; z++) {
-                glm::vec3 pos{ x / 10.0, y / 10.0, z / 10.0 };
-
-                pos = pos - glm::vec3(2, 2, 2);
-
-                float r = glm::length(pos);
-
-                if (r < 2.0&& r>1.5) {
-                    voxel[x][y][z].normal = pos / r;
-                    voxel[x][y][z].solid = 1;
-                    voxel[x][y][z].point = pos / r * 2.0;
-                }
-                else {
-                    voxel[x][y][z].solid = 0;
-                }
-            }
-        }
-    }
+    bindUniformLocation(erodeDistance);
+    bindUniformLocation(voxelSize);
+    bindUniformLocation(bBoxMin);
+    bindUniformLocation(voxelSpaceSize);
 
     glGenBuffers(1, &_voxel_buffer_);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _voxel_buffer_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, 40 * 40 * 40 * sizeof(Voxel), voxel, GL_STATIC_DRAW);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, _voxel_space_size_.x*_voxel_space_size_.y*_voxel_space_size_.z* sizeof(Voxel), NULL, GL_STATIC_DRAW);
+    GLuint zero = 0;
+    glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _voxel_buffer_);
 
+    glViewport(0, 0, 128, 128);
+
+    glUseProgram(program);
+    glBindVertexArray(_vao_);
+    glDisable(GL_MULTISAMPLE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    
+    glUniform1f(voxelSize, _voxel_size_);
+    glUniform3fv(bBoxMin, 1, &_bmin_[0]);
+    glUniform3iv(voxelSpaceSize, 1, &_voxel_space_size_[0]);
+
+    glUniform1f(erodeDistance, _voxel_size_*0.5);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
+    glUniform1f(erodeDistance, _voxel_size_*1.3);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
+    glUniform1f(erodeDistance, _voxel_size_*2.1);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
+    glBindVertexArray(0);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 }
 
 void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
 {
     static GLuint program = util::createProgram_C(util::readFile("shaders\\solid_constraint.glsl"));
+    bindUniformLocation(bBoxMin);
+    bindUniformLocation(voxelSpaceSize);
+    bindUniformLocation(voxelSize);
+
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_pos_buffer);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _voxel_buffer_);
 
     glUseProgram(program);
+    glUniform3fv(bBoxMin, 1, &_bmin_[0]);
+    glUniform3iv(voxelSpaceSize, 1, &_voxel_space_size_[0]);
+    glUniform1f(voxelSize, _voxel_size_);
 
     glDispatchCompute(partical_count / 128, 1, 1);
 }

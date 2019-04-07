@@ -16,6 +16,7 @@ void SolidModel::loadModel(const std::string& filename) {
     importer->ReadFile(filename, aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
     const aiScene *scene = importer->GetScene();
+    
 
     for (unsigned int meshI = 0; meshI < scene->mNumMeshes; ++meshI)
     {
@@ -58,6 +59,27 @@ void SolidModel::loadModel(const std::string& filename) {
             }
         }
     }
+
+
+    // calculate bounding box
+    _bmin_ = glm::vec3(100000.0);
+    _bmax_ = glm::vec3(-100000.0);
+    for (auto& vertex : _mesh_) {
+        _bmin_ = glm::min(_bmin_, vertex.pos);
+        _bmax_ = glm::max(_bmax_, vertex.pos);
+    }
+
+    // refine center, so that the center of the mesh is always (0,0,0)
+    glm::vec3 center = (_bmin_ + _bmax_)*0.5;
+    for (auto& vertex : _mesh_) {
+        vertex.pos = vertex.pos - center;
+    }
+
+    // refine bounding box, slightly larger than the object
+    _bmin_ = _bmin_ - center - vec3(_voxel_size_/2);
+    _bmax_ = _bmax_ - center + vec3(_voxel_size_/2);
+
+    _voxel_space_size_ = glm::ivec3((_bmax_ - _bmin_) / _voxel_size_);
 
     glGenVertexArrays(1, &_vao_);
     glBindVertexArray(_vao_);

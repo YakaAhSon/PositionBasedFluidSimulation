@@ -111,6 +111,12 @@
     <None Include="shaders\mesh_render_fragment.glsl">
       <Filter>shaders\render</Filter>
     </None>
+    <None Include="shaders\solid_genvoxel_vertex.glsl">
+      <Filter>shaders\solid_interaction</Filter>
+    </None>
+    <None Include="shaders\solid_genvoxel_fragment.glsl">
+      <Filter>shaders\solid_interaction</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\boundary_constraint.glsl">

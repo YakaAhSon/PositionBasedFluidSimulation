@@ -34,10 +34,17 @@ typedef struct ModelVertexData {
 class SolidModel {
 private:
 
+    static constexpr float _voxel_size_ = 0.1;
+
     GLuint _voxel_buffer_;
+    glm::ivec3 _voxel_space_size_;
 
     GLuint _vao_;
     GLuint _vbo_;
+
+    // bounding box
+    glm::vec3 _bmin_;
+    glm::vec3 _bmax_;
 
     std::vector<ModelVertexData> _mesh_;
 
