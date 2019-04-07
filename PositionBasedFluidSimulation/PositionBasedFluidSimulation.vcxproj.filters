@@ -59,6 +59,9 @@
     <ClCompile Include="solidmodeldynamics.cpp">
       <Filter>pbfsim</Filter>
     </ClCompile>
+    <ClCompile Include="boundary.cpp">
+      <Filter>pbfsim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pbfsim.h">
@@ -77,6 +80,9 @@
       <Filter>pbfrenderer</Filter>
     </ClInclude>
     <ClInclude Include="solidmodel.h">
+      <Filter>pbfsim</Filter>
+    </ClInclude>
+    <ClInclude Include="boundary.h">
       <Filter>pbfsim</Filter>
     </ClInclude>
   </ItemGroup>

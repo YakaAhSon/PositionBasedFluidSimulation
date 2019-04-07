@@ -2,7 +2,7 @@
 
 #include"utilities.h"
 
-
+#include"boundary.h"
 
 
 void SolidModel::predict()
@@ -29,41 +29,41 @@ void SolidModel::predict()
         const ModelVertexData& v = _mesh_[i];
         glm::vec3 pos = glm::rotate(_orientation_, v.pos) + _COM_;
 
-        if (pos.x < -11.5) {
+        if (pos.x < boundary::bmin.x) {
             glm::vec3 norm = glm::vec3(1, 0, 0);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, -11.5 - pos.x);
+            positionImpulse(v.pos, norm, boundary::bmin.x - pos.x);
         }
-        if (pos.x >11.5) {
+        if (pos.x > boundary::bmax.x) {
             glm::vec3 norm = glm::vec3(-1, 0, 0);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, pos.x - 11.5);
+            positionImpulse(v.pos, norm, pos.x - boundary::bmax.x);
         }
-        if (pos.y < -5.5) {
+        if (pos.y < boundary::bmin.y) {
             glm::vec3 norm = glm::vec3(0, 1, 0);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, -5.5 - pos.y);
+            positionImpulse(v.pos, norm, boundary::bmin.y - pos.y);
         }
-        if (pos.y > 5.5) {
+        if (pos.y > boundary::bmax.y) {
             glm::vec3 norm = glm::vec3(0, -1, 0);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, pos.y - 5.5);
+            positionImpulse(v.pos, norm, pos.y - boundary::bmax.x);
         }
-        if (pos.z < -5.5) {
+        if (pos.z < boundary::bmin.z) {
             glm::vec3 norm = glm::vec3(0, 0, 1);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, -5.5 - pos.z);
+            positionImpulse(v.pos, norm, boundary::bmin.z - pos.z);
         }
-        if (pos.z > 5.5) {
+        if (pos.z > boundary::bmax.z) {
             glm::vec3 norm = glm::vec3(0, 0, -1);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, pos.z - 5.5);
+            positionImpulse(v.pos, norm, pos.z - boundary::bmax.z);
         }
     }
     //t.toc("RigidBodu=y Simulation Time");

@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="boundary.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pbfsim.cpp" />
@@ -137,6 +138,7 @@
     <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="boundary.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="pbfrenderer.h" />
     <ClInclude Include="pbfsim.h" />

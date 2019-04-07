@@ -7,6 +7,7 @@
 #include"pbfsim.h"
 #include"pbfrenderer.h"
 
+#include"boundary.h"
 
 PBF pbf(50*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
@@ -144,6 +145,8 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         double timestep = 1 / 60.0;
+
+        boundary::update();
 
         if (!sim_run&& sim_step) {
             sim_step = false;

@@ -5,6 +5,8 @@
 #include<vector>
 #include<iostream>
 
+#include"boundary.h"
+
 using namespace util;
 
 
@@ -50,18 +52,15 @@ void PBF::updateGrid()
 void PBF::applyBoundaryConstraint()
 {
     static GLuint program = createProgram_C(readFile("shaders\\boundary_constraint.glsl"));
-    bindUniformLocation(left_boundary);
+    bindUniformLocation(bmin);
+    bindUniformLocation(bmax);
 
 
     glUseProgram(program);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
 
-    static float timer = 0;
-
-    float left = -7.0 - glm::cos(timer);
-
-    glUniform1f(left_boundary, left);
-    timer += 1 / 20.0;
+    glUniform3fv(bmin,1, &boundary::bmin[0]);
+    glUniform3fv(bmax,1, &boundary::bmax[0]);
     runForAllParticals();
 }
 
