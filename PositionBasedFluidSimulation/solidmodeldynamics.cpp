@@ -51,7 +51,7 @@ void SolidModel::predict()
             glm::vec3 norm = glm::vec3(0, -1, 0);
             glm::quat inverse_orien = glm::conjugate(_orientation_);
             norm = glm::rotate(inverse_orien, norm);
-            positionImpulse(v.pos, norm, pos.y - boundary::bmax.x);
+            positionImpulse(v.pos, norm, pos.y - boundary::bmax.y);
         }
         if (pos.z < boundary::bmin.z) {
             glm::vec3 norm = glm::vec3(0, 0, 1);
