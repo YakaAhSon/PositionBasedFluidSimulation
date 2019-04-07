@@ -192,7 +192,7 @@ void PBF::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
-    aball.loadModel("assets\\bunny.obj");
+    aball.loadModel("assets\\torus.obj");
     aball.setMass(100.0);
     aball.voxelize();
 }

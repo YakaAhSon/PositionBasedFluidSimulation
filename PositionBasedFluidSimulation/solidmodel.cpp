@@ -123,7 +123,7 @@ void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
     int step = impulse_number / 500;
     step = glm::max(step, 1);
     for (int i = 0; i < impulse_number; i+=step) {
-        positionImpulse(impulses[i].pos, impulses[i].normal, impulses[i].depth*0.002 * step);
+        positionImpulse(impulses[i].pos, impulses[i].normal, impulses[i].depth*0.01 * step);
     }
     //t.toc("interaction");
 }
