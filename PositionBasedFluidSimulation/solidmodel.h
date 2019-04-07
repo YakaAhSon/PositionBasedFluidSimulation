@@ -39,6 +39,20 @@ private:
     GLuint _voxel_buffer_;
     glm::ivec3 _voxel_space_size_;
 
+#pragma pack(push)
+#pragma pack(16)
+    using FluidImpulse = struct {
+        glm::vec3 pos;
+        float depth;
+        glm::vec3 normal;
+        float _padding;
+    };
+#pragma pack(pop)
+
+    static constexpr int _max_impulses_ = 64*1024;
+    static GLuint _impulse_counter_buffer_;
+    static GLuint _impulse_buffer_;
+
     GLuint _vao_;
     GLuint _vbo_;
 
@@ -72,6 +86,7 @@ private:
 public:
     // dynamics
     void predict();
+    // pos and norm are in local coordinate!
     void positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth);
 
     void setMass(float mass);

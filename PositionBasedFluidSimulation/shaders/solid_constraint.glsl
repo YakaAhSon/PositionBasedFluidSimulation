@@ -17,6 +17,17 @@ layout(std430, binding = 1) buffer voxel_buffer {
     }voxels[];
 };
 
+layout(std430, binding = 2) buffer fluid_impulse_buffer {
+    struct {
+        vec3 pos;// impulse position in local space
+        float depth;
+        vec3 normal;// impulse normal in local space
+        int _padding_;
+    }fluid_impulses[];
+};
+
+layout(binding = 0, offset = 0) uniform atomic_uint impulse_counter;
+
 uniform vec3 bBoxMin;
 uniform ivec3 voxelSpaceSize;
 uniform float voxelSize;
@@ -41,8 +52,14 @@ void main(void)
         int _padding_;
     } voxel = voxels[ipos.x * voxelSpaceSize.y*voxelSpaceSize.z + ipos.y*voxelSpaceSize.z + ipos.z];
 
-    
-    vec3 delta = dot(voxel.pos - pos, voxel.norm)*voxel.norm;
+    float depth = dot(voxel.pos - pos, voxel.norm);
+
+    vec3 delta = depth*voxel.norm;
+
+    uint impulse_idx = atomicCounterIncrement(impulse_counter);
+    fluid_impulses[impulse_idx].normal = voxel.norm;
+    fluid_impulses[impulse_idx].pos = voxel.pos;
+    fluid_impulses[impulse_idx].depth = -depth;
 
     pos_curr[gl_GlobalInvocationID.x].xyz += mModelRot*delta;
 }

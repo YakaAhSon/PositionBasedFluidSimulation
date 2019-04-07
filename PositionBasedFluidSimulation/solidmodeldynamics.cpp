@@ -8,7 +8,7 @@
 void SolidModel::predict()
 {
     glm::vec3 tmp = _COM_;
-    _COM_ = _COM_ * 2 - _COM_prev_ -glm::vec3(0,9.8*0.5*(1 / 60.0)*(1 / 60.0), 9.8*0.5*(1 / 60.0)*(1 / 60.0));
+    _COM_ = _COM_ * 2 - _COM_prev_ - glm::vec3(0, 9.8*0.5*(1 / 60.0)*(1 / 60.0), 0);
     _COM_prev_ = tmp;
 
     glm::quat orientation_delta = _orientation_ * glm::inverse(_orientation_prev_);
@@ -24,38 +24,57 @@ void SolidModel::predict()
     //util::Timer t;
     int step = glm::max(int(_mesh_.size() / 500),1);
     for(int i = 0;i<_mesh_.size();i+=step){
+
+
         const ModelVertexData& v = _mesh_[i];
         glm::vec3 pos = glm::rotate(_orientation_, v.pos) + _COM_;
 
         if (pos.x < -11.5) {
-            positionImpulse(pos, glm::vec3(1, 0, 0), -11.5 - pos.x);
+            glm::vec3 norm = glm::vec3(1, 0, 0);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, -11.5 - pos.x);
         }
         if (pos.x >11.5) {
-            positionImpulse(pos, glm::vec3(-1, 0, 0), pos.x - 11.5);
+            glm::vec3 norm = glm::vec3(-1, 0, 0);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, pos.x - 11.5);
         }
         if (pos.y < -5.5) {
-            positionImpulse(pos, glm::vec3(0, 1, 0), -5.5 - pos.y);
+            glm::vec3 norm = glm::vec3(0, 1, 0);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, -5.5 - pos.y);
         }
         if (pos.y > 5.5) {
-            positionImpulse(pos, glm::vec3(0, -1, 0), pos.y - 5.5);
+            glm::vec3 norm = glm::vec3(0, -1, 0);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, pos.y - 5.5);
         }
         if (pos.z < -5.5) {
-            positionImpulse(pos, glm::vec3(0, 0, 1), -5.5 - pos.z);
+            glm::vec3 norm = glm::vec3(0, 0, 1);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, -5.5 - pos.z);
         }
         if (pos.z > 5.5) {
-            positionImpulse(pos, glm::vec3(0, 0, -1), pos.z - 5.5);
+            glm::vec3 norm = glm::vec3(0, 0, -1);
+            glm::quat inverse_orien = glm::conjugate(_orientation_);
+            norm = glm::rotate(inverse_orien, norm);
+            positionImpulse(v.pos, norm, pos.z - 5.5);
         }
     }
     //t.toc("RigidBodu=y Simulation Time");
 }
 
+// position impulse in local space
 void SolidModel::positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth)
 {
-    glm::quat inverse_rot = glm::inverse(_orientation_);
-    pos = glm::rotate(inverse_rot, pos - _COM_);
-    norm = glm::rotate(inverse_rot, norm);
+    glm::quat inverse_rot = glm::conjugate(_orientation_);
 
-    glm::vec3 r_norm = glm::cross(pos, norm);
+    glm::vec3 r_norm = glm::cross(pos-_COM_local_, norm);
 
     float J = depth / (1 / _mass_ + glm::dot(r_norm, _inverse_inertia_tensor_*r_norm));
 
