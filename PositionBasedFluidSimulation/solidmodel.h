@@ -47,6 +47,18 @@ private:
     glm::vec3 _bmax_;
 
     std::vector<ModelVertexData> _mesh_;
+private:
+    // dynamics
+    bool _fixed_;
+    glm::vec3 _COM_;
+    glm::quat _orientation_;
+
+    glm::vec3 _velocity_;
+    glm::vec3 _anglar_velocity_;
+public:
+    // dynamics
+    void predict();
+    void updateVelocity();
 
 public:
 

@@ -3,6 +3,14 @@
 #include"utilities.h"
 
 
+void SolidModel::predict()
+{
+}
+
+void SolidModel::updateVelocity()
+{
+}
+
 void SolidModel::voxelize()
 {
     static GLuint program = []() {
