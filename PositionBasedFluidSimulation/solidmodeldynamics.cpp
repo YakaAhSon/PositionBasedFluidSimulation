@@ -16,7 +16,7 @@ void SolidModel::predict()
     glm::quat tmpquat = _orientation_;
 
     _orientation_ = orientation_delta * _orientation_;
-    glm::normalize(_orientation_);
+    _orientation_ = glm::normalize(_orientation_);
 
     _orientation_prev_ = tmpquat;
 

@@ -34,8 +34,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+
         sim_run = !sim_run;
+        if (sim_run) {
+
+            glfwSwapInterval(0);
+        }
+        else {
+            glfwSwapInterval(1);
+        }
+    }
     if (key == GLFW_KEY_N && action == GLFW_PRESS)
         sim_step = true;
 }
