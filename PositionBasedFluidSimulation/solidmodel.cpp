@@ -143,11 +143,14 @@ void SolidModel::render(Camera& camera)
     }();
 
     static GLuint mVPLocation = glGetUniformLocation(program, "mMVP");
+    bindUniformLocation(mModelRot);
 
     glUseProgram(program);
     glm::mat4 mMVP = camera.getViewProjectionMatrix()*getMModel();
 
     glUniformMatrix4fv(mVPLocation, 1,GL_FALSE, &mMVP[0][0]);
+
+    glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &_mModelRot_[0][0]);
 
     glBindVertexArray(_vao_);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
