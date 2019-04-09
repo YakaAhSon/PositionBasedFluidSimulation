@@ -192,15 +192,13 @@ void PBF::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
-    aball.loadModel("assets\\torus.obj");
-    aball.setMass(100.0);
-    aball.voxelize();
+    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 100.0));
+    _solid_models_.push_back(SolidModel::loadModel("assets\\bunny.obj", 1, 100.0));
+    _solid_models_[0]->moveGlobal(glm::vec3(2, -2, 0));
 }
 
 void PBF::sim(double timestep)
 {
-
-    aball.predict();
 
     constexpr int steps_per_frame = 5;
 
@@ -232,17 +230,19 @@ void PBF::sim(double timestep)
     }
     std::cout << std::endl;
 #else
+
+    SolidModel::predictAll();
     predict();
     updateGrid();
     applyBoundaryConstraint();
-    aball.runConstraint(_buffer_partical_pos_curr_,_partical_count_);
+
     for (int i = 0; i < steps_per_frame; i++) {
         copyPosToGrid();
         calculateLambda();
         calculateDeltaP();
         applyDensityConstraintPosDelta();
 
-        aball.runConstraint(_buffer_partical_pos_curr_, _partical_count_);
+        SolidModel::runConstraintsAll(_buffer_partical_pos_curr_, _partical_count_);
     }
 #endif
 

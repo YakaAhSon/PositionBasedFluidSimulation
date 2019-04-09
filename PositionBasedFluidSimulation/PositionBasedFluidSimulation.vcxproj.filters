@@ -33,13 +33,19 @@
     <Filter Include="shaders\render">
       <UniqueIdentifier>{341b679e-6aef-4ddc-9191-5aa86b600496}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbfsim\globalboundary">
+      <UniqueIdentifier>{6a98c246-58d6-499e-add0-87f30f57359b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbfsim\fluid">
+      <UniqueIdentifier>{e5ddf530-c04d-4978-86e9-c2e8f47994ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pbfsim\solidmodels">
+      <UniqueIdentifier>{1de3731b-d6da-415e-a491-93b9e2a73f6b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="pbfsim.cpp">
-      <Filter>pbfsim</Filter>
     </ClCompile>
     <ClCompile Include="utilities.cpp">
       <Filter>utilities</Filter>
@@ -50,23 +56,23 @@
     <ClCompile Include="pbfrenderer.cpp">
       <Filter>pbfrenderer</Filter>
     </ClCompile>
-    <ClCompile Include="solidmodel.cpp">
-      <Filter>pbfsim</Filter>
+    <ClCompile Include="boundary.cpp">
+      <Filter>pbfsim\globalboundary</Filter>
     </ClCompile>
-    <ClCompile Include="solidmodelloader.cpp">
-      <Filter>pbfsim</Filter>
+    <ClCompile Include="pbfsim.cpp">
+      <Filter>pbfsim\fluid</Filter>
+    </ClCompile>
+    <ClCompile Include="solidmodel.cpp">
+      <Filter>pbfsim\solidmodels</Filter>
     </ClCompile>
     <ClCompile Include="solidmodeldynamics.cpp">
-      <Filter>pbfsim</Filter>
+      <Filter>pbfsim\solidmodels</Filter>
     </ClCompile>
-    <ClCompile Include="boundary.cpp">
-      <Filter>pbfsim</Filter>
+    <ClCompile Include="solidmodelloader.cpp">
+      <Filter>pbfsim\solidmodels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pbfsim.h">
-      <Filter>pbfsim</Filter>
-    </ClInclude>
     <ClInclude Include="utilities.h">
       <Filter>utilities</Filter>
     </ClInclude>
@@ -79,11 +85,14 @@
     <ClInclude Include="pbfrenderer.h">
       <Filter>pbfrenderer</Filter>
     </ClInclude>
-    <ClInclude Include="solidmodel.h">
-      <Filter>pbfsim</Filter>
-    </ClInclude>
     <ClInclude Include="boundary.h">
-      <Filter>pbfsim</Filter>
+      <Filter>pbfsim\globalboundary</Filter>
+    </ClInclude>
+    <ClInclude Include="pbfsim.h">
+      <Filter>pbfsim\fluid</Filter>
+    </ClInclude>
+    <ClInclude Include="solidmodel.h">
+      <Filter>pbfsim\solidmodels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

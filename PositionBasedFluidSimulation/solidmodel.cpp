@@ -27,7 +27,7 @@ void SolidModel::voxelize()
     glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _voxel_buffer_);
 
-    glViewport(0, 0, 128, 128);
+    glViewport(0, 0, 512, 512);
 
     glUseProgram(program);
     glBindVertexArray(_vao_);
@@ -45,6 +45,8 @@ void SolidModel::voxelize()
     glUniform1f(erodeDistance, _voxel_size_*1.3);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
 
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _voxel_buffer_);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, _voxels_.size() * sizeof(Voxel), &_voxels_[0]);
 
     glBindVertexArray(0);
     glEnable(GL_MULTISAMPLE);
@@ -54,21 +56,22 @@ void SolidModel::voxelize()
 
 GLuint SolidModel::_impulse_buffer_ = 0;
 GLuint SolidModel::_impulse_counter_buffer_ = 0;
-void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
+
+void SolidModel::runConstraintsAll(GLuint partical_pos_buffer, int partical_count)
 {
-    updateModelViewMatrices();
     static GLuint program = util::createProgram_C(util::readFile("shaders\\solid_constraint.glsl"));
     bindUniformLocation(bBoxMin);
     bindUniformLocation(voxelSpaceSize);
     bindUniformLocation(voxelSize);
     bindUniformLocation(mView);
     bindUniformLocation(mModelRot);
+    bindUniformLocation(isFixed);
 
     static GLuint impulse_buffer = [&]() {
         glGenBuffers(1, &_impulse_buffer_);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, _impulse_buffer_);
         
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(FluidImpulse)*_max_impulses_,NULL,GL_STATIC_READ);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(FluidImpulse)*_max_impulses_,NULL,GL_DYNAMIC_READ);
 
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
@@ -84,48 +87,69 @@ void SolidModel::runConstraint(GLuint partical_pos_buffer, int partical_count)
         return _impulse_counter_buffer_;
     }();
 
-    GLuint zero = 0;
-    glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _impulse_counter_buffer_);
-    glClearBufferData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
-
-    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, _impulse_counter_buffer_);
-
+    // common settings for fixed and unfixed modles
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_pos_buffer);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _voxel_buffer_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _impulse_buffer_);
-
     glUseProgram(program);
-    glUniform3fv(bBoxMin, 1, &_bmin_[0]);
-    glUniform3iv(voxelSpaceSize, 1, &_voxel_space_size_[0]);
     glUniform1f(voxelSize, _voxel_size_);
-    glUniformMatrix4fv(mView, 1, GL_FALSE, &_mView_[0][0]);
-    glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &_mModelRot_[0][0]);
 
-    glDispatchCompute(partical_count / 128, 1, 1);
-    glFinish();
+    // run constraint for fixed models
+    glUniform1i(isFixed, 1);
+    for (SolidModel* m : _fixed_models_) {
+        m->updateModelViewMatrices();
+        glUniform3fv(bBoxMin, 1, &m->_bmin_[0]);
+        glUniform3iv(voxelSpaceSize, 1, &m->_voxel_space_size_[0]);
+        glUniformMatrix4fv(mView, 1, GL_FALSE, &m->_mView_[0][0]);
+        glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &m->_mModelRot_[0][0]);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m->_voxel_buffer_);
+        glDispatchCompute(partical_count / 128, 1, 1);
+        glFinish();
+    }
 
+    // run constraints for unfixed models and fetch fluid impulses
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _impulse_counter_buffer_);
     GLuint* pImpulseCounter = (GLuint*)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER, GL_READ_WRITE);
-    GLuint impulse_number = pImpulseCounter[0];
     pImpulseCounter[0] = 0;
+    GLuint impulseCounter = 0;
     glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
 
-    //std::cout << "impulse number: " << impulse_number << std::endl;
-   
+    glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, _impulse_counter_buffer_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _impulse_buffer_);
 
-    static std::vector<FluidImpulse> impulses(_max_impulses_);
+    glUniform1i(isFixed, 0);
+    for (SolidModel*m : _unfixed_models_) {
+        m->updateModelViewMatrices();
+        glUniform3fv(bBoxMin, 1, &m->_bmin_[0]);
+        glUniform3iv(voxelSpaceSize, 1, &m->_voxel_space_size_[0]);
+        glUniformMatrix4fv(mView, 1, GL_FALSE, &m->_mView_[0][0]);
+        glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &m->_mModelRot_[0][0]);
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m->_voxel_buffer_);
+        glDispatchCompute(partical_count / 128, 1, 1);
+        glFinish();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _impulse_buffer_);
-    
-    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, impulse_number * sizeof(FluidImpulse), &impulses[0]);
+        m->_impulse_offset_ = impulseCounter;
 
-    //util::Timer t;
-    int step = impulse_number / 500;
-    step = glm::max(step, 1);
-    for (int i = 0; i < impulse_number; i+=step) {
-        positionImpulse(impulses[i].pos, impulses[i].normal, impulses[i].depth*0.01 * step);
+        pImpulseCounter = (GLuint*)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER, GL_READ_WRITE);
+        impulseCounter = pImpulseCounter[0];
+        glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+
+        m->_impulse_count_ = impulseCounter - m->_impulse_offset_;
     }
-    //t.toc("interaction");
+
+    // apply fluid impulse for unfixed models
+    // fetch all impulses once, to reduce GPU memory latency
+    static std::vector<FluidImpulse> impulses(_max_impulses_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _impulse_buffer_);
+    glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, impulseCounter * sizeof(FluidImpulse), &impulses[0]);
+    // apply impulse for each model
+    for (SolidModel* m : _unfixed_models_) {
+        int step = m->_impulse_count_ / 500;// sample some impulses
+        step = glm::max(step, 1);
+        for (int i = 0; i < m->_impulse_count_; i += step) {
+            const FluidImpulse& impulse = impulses[i + m->_impulse_offset_];
+            m->positionImpulse(impulse.pos, impulse.normal, impulse.depth*0.02 * step);
+        }
+    }
+    
 }
 
 void SolidModel::render(Camera& camera)

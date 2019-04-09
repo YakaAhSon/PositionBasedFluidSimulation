@@ -78,7 +78,7 @@ public:
 
 
 public:
-    SolidModel aball;
+    std::vector<SolidModel*> _solid_models_;
 };
 
 #endif

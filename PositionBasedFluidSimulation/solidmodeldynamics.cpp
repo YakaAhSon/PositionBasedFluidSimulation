@@ -69,6 +69,22 @@ void SolidModel::predict()
     //t.toc("RigidBodu=y Simulation Time");
 }
 
+void SolidModel::predictAll() {
+    for (auto m : _unfixed_models_) {
+        m->predict();
+    }
+}
+
+void SolidModel::renderAll(Camera & camera)
+{
+    for (auto m : _unfixed_models_) {
+        m->render(camera);
+    }
+    for (auto m : _fixed_models_) {
+        m->render(camera);
+    }
+}
+
 // position impulse in local space
 void SolidModel::positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth)
 {
@@ -89,6 +105,15 @@ void SolidModel::positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth)
     _orientation_ = _orientation_*deltaRot;
 }
 
+
+// m.vertices vs self.voxel
+void SolidModel::solveCollision(SolidModel * m)
+{
+    for (const ModelVertexData & v : m->_mesh_) {
+
+    }
+}
+
 void SolidModel::setMass(float mass)
 {
     _mass_ = mass;
@@ -105,4 +130,9 @@ void SolidModel::updateModelViewMatrices()
     _mModel_ = mTranslation*mRot;
     _mView_ = glm::inverse(_mModel_);
 
+}
+
+void SolidModel::moveGlobal(glm::vec3 p) {
+    _COM_ += p;
+    _COM_prev_ += p;
 }

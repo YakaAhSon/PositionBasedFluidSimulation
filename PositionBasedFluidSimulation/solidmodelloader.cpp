@@ -9,7 +9,9 @@
 
 using namespace glm;
 
-void SolidModel::loadModel(const std::string& filename) {
+
+
+SolidModel::SolidModel(const std::string& filename) {
     
     Assimp::Importer* importer = new Assimp::Importer();
 
@@ -81,6 +83,8 @@ void SolidModel::loadModel(const std::string& filename) {
 
     _voxel_space_size_ = glm::ivec3((_bmax_ - _bmin_) / _voxel_size_);
 
+    _voxels_.resize(_voxel_space_size_.x*_voxel_space_size_.y*_voxel_space_size_.z);
+
     // init pos and orientation
     _COM_ = glm::vec3(0);
     for (auto& v : _mesh_) {
@@ -135,4 +139,21 @@ void SolidModel::loadModel(const std::string& filename) {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ModelVertexData), (void*)offsetof(ModelVertexData, tex));
 
 
+}
+
+std::vector<SolidModel*> SolidModel::_fixed_models_ = {};
+std::vector<SolidModel*> SolidModel::_unfixed_models_ = {};
+
+SolidModel* SolidModel::loadModel(const std::string& filename, bool fixed, float mass) {
+    SolidModel* model = new SolidModel(filename);
+    model->voxelize();
+    model->_fixed_ = fixed;
+    model->setMass(mass);
+    if (fixed) {
+        _fixed_models_.push_back(model);
+    }
+    else {
+        _unfixed_models_.push_back(model);
+    }
+    return model;
 }

@@ -166,7 +166,7 @@ int main(void)
             pbf.sim(timestep);
 
         renderer.render();
-        pbf.aball.render(renderer.camera);
+        SolidModel::renderAll(renderer.camera);
 
         updateFPS();
         glfwSwapBuffers(window);

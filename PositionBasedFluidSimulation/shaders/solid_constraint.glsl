@@ -36,6 +36,8 @@ uniform float voxelSize;
 uniform mat4 mView;
 uniform mat3 mModelRot;
 
+uniform bool isFixed;
+
 void main(void)
 {
     vec3 pos = (mView * vec4(pos_curr[gl_GlobalInvocationID.x].xyz, 1.0)).xyz;
@@ -56,10 +58,13 @@ void main(void)
 
     vec3 delta = depth*voxel.norm;
 
+    pos_curr[gl_GlobalInvocationID.x].xyz += mModelRot * delta;
+
+    //if (isFixed) return;
+
     uint impulse_idx = atomicCounterIncrement(impulse_counter);
     fluid_impulses[impulse_idx].normal = voxel.norm;
     fluid_impulses[impulse_idx].pos = voxel.pos;
     fluid_impulses[impulse_idx].depth = -depth;
 
-    pos_curr[gl_GlobalInvocationID.x].xyz += mModelRot*delta;
 }
