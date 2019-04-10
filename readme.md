@@ -8,6 +8,7 @@ Based on [this paper](http://mmacklin.com/pbf_sig_preprint.pdf).
 * Fluid - Rigid Body interaction (Buoyancy)
 * Rigid body collision
 * Cloth Simulation
+* Fluid - Cloth interaction
 
 ## Control
 * `SPACE` to start/pause simulation
