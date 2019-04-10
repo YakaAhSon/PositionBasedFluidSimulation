@@ -67,6 +67,7 @@ void main(void)
     if (voxel.solid==0)return;
 
     float depth = dot(voxel.pos - pos, voxel.norm);
+    if (depth < 0.0001)return;
 
 
     vec3 delta = depth*voxel.norm;

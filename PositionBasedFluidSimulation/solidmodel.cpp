@@ -27,6 +27,9 @@ void SolidModel::voxelize()
     glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _voxel_buffer_);
 
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
     glViewport(0, 0, 512, 512);
 
     glUseProgram(program);
@@ -39,11 +42,19 @@ void SolidModel::voxelize()
     glUniform3fv(bBoxMin, 1, &_bmin_[0]);
     glUniform3iv(voxelSpaceSize, 1, &_voxel_space_size_[0]);
 
-    glUniform1f(erodeDistance, _voxel_size_*0.5);
+    glUniform1f(erodeDistance, _voxel_size_*0.1);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
 
-    glUniform1f(erodeDistance, _voxel_size_*1.3);
+    glUniform1f(erodeDistance, _voxel_size_*0.6);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
+
+    glUniform1f(erodeDistance, _voxel_size_*1.1);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
+    glUniform1f(erodeDistance, _voxel_size_*1.6);
+    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
+
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _voxel_buffer_);
     glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, _voxels_.size() * sizeof(Voxel), &_voxels_[0]);
@@ -52,6 +63,8 @@ void SolidModel::voxelize()
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
 }
 
 GLuint SolidModel::_impulse_buffer_ = 0;
@@ -189,6 +202,7 @@ void SolidModel::render(Camera& camera)
 
     static GLuint mVPLocation = glGetUniformLocation(program, "mMVP");
     bindUniformLocation(mModelRot);
+    bindUniformLocation(color);
 
     glUseProgram(program);
     glm::mat4 mMVP = camera.getViewProjectionMatrix()*getMModel();
@@ -196,6 +210,10 @@ void SolidModel::render(Camera& camera)
     glUniformMatrix4fv(mVPLocation, 1,GL_FALSE, &mMVP[0][0]);
 
     glUniformMatrix3fv(mModelRot, 1, GL_FALSE, &_mModelRot_[0][0]);
+
+    float colors[3] = { 1.0,0.7,0.4 };
+    glUniform3fv(color, 1, colors);
+
 
     glBindVertexArray(_vao_);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());

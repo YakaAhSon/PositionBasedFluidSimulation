@@ -31,6 +31,10 @@ GLFWwindow* window;
 
 bool sim_run = false;
 bool sim_step = false;
+
+
+SolidModel* last_model=nullptr;
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) 
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -40,7 +44,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         sim_run = !sim_run;
         if (sim_run) {
 
-            glfwSwapInterval(0);
+            glfwSwapInterval(1);
         }
         else {
             glfwSwapInterval(1);
@@ -48,6 +52,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     }
     if (key == GLFW_KEY_N && action == GLFW_PRESS)
         sim_step = true;
+    if (key == GLFW_KEY_V && action == GLFW_PRESS)
+        boundary::toggleWave();
+
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+        last_model = pbf.addObject("assets\\sphere.obj", 100.0);
+
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+        last_model = pbf.addObject("assets\\bunny.obj", 200.0);
+
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+        last_model = pbf.addObject("assets\\torus.obj", 100.0);
 }
 
 
@@ -97,7 +112,27 @@ void updateCamera()
     {
         renderer.camera.moveRight(speed);
     }
+}
 
+void controlModel() {
+    if (last_model==nullptr)return;
+    float speed = 0.1;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        last_model->moveGlobal(glm::vec3(-speed, 0, 0));
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        last_model->moveGlobal(glm::vec3(speed, 0, 0));
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        last_model->moveGlobal(glm::vec3(0, 0, -speed));
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        last_model->moveGlobal(glm::vec3(0, 0, speed));
+    }
 }
 
 int main(void) 
@@ -149,8 +184,10 @@ int main(void)
     glViewport(0, 0, 512, 512);
 
 
+
     while (!glfwWindowShouldClose(window)) 
     {
+        controlModel();
         updateCamera();
         glClearColor(0, 0, 0, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,7 +195,7 @@ int main(void)
         double timestep = 1 / 60.0;
 
         boundary::update();
-
+        boundary::render(renderer.camera);
         if (!sim_run&& sim_step) {
             sim_step = false;
             pbf.sim(timestep);

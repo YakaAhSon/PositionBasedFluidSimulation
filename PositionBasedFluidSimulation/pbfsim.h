@@ -86,6 +86,8 @@ private:
 public:
     const GLuint getCurrPosVBO()const { return _buffer_particals_; }
 
+    SolidModel* addObject(const char* modelFile, float mass);
+
 
 public:
     std::vector<SolidModel*> _solid_models_;

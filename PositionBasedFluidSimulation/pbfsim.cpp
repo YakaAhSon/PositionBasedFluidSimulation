@@ -185,15 +185,18 @@ void PBF::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_grids_);
     glBufferData(GL_SHADER_STORAGE_BUFFER, _grid_count_ * sizeof(Grid), NULL, GL_STREAM_READ);
 
-    // setup scene
-    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 500.0));
-    _solid_models_.push_back(SolidModel::loadModel("assets\\Bunny.obj", 0, 1000.0));
-    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 200.0));
-    _solid_models_[0]->moveGlobal(glm::vec3(3, 2, 0));
-    _solid_models_[1]->moveGlobal(glm::vec3(-2, 1, 1));
-    _solid_models_[1]->moveGlobal(glm::vec3(-3, 0, -1));
 
-    cloth = new Cloth(10, 10, glm::vec3(0, 4, -4), glm::vec3(0, 4, 4), glm::vec3(0, -4, -4));
+    SolidModel* cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 200.0);
+    cylinder->moveGlobal(glm::vec3(9, 0, -4));
+
+    cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 200.0);
+    cylinder->moveGlobal(glm::vec3(9, 0, 4));
+
+    cylinder = SolidModel::loadModel("assets\\cylinder_h.obj", 1, 200.0);
+    cylinder->moveGlobal(glm::vec3(9, 4, 0));
+
+    cloth = new Cloth(10, 10, glm::vec3(9, 4, -4), glm::vec3(9, 4, 4), glm::vec3(9, -4, -4));
+
 }
 
 void PBF::sim(double timestep)
@@ -248,6 +251,13 @@ void PBF::sim(double timestep)
     cloth->blowByFluid(_buffer_particals_, _partical_count_);
 #endif
 
+}
+
+SolidModel* PBF::addObject(const char * modelFile, float mass)
+{
+    auto* d = SolidModel::loadModel(modelFile,0,mass);
+    d->moveGlobal(glm::vec3(0, 1, 0));
+    return d;
 }
 
 void PBF::runForAllParticals()
