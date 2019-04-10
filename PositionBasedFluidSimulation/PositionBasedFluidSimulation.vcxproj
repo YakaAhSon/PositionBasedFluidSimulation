@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="boundary.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="cloth.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pbfsim.cpp" />
     <ClCompile Include="pbfrenderer.cpp" />
@@ -140,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="boundary.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cloth.h" />
     <ClInclude Include="pbfrenderer.h" />
     <ClInclude Include="pbfsim.h" />
     <ClInclude Include="predef.h" />
@@ -149,6 +151,8 @@
   <ItemGroup>
     <None Include="shaders\calculate_delta_p.glsl" />
     <None Include="shaders\calculate_lambda.glsl" />
+    <None Include="shaders\cloth_render_fragment.glsl" />
+    <None Include="shaders\cloth_render_vertex.glsl" />
     <None Include="shaders\density_constraint_apply.glsl" />
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />

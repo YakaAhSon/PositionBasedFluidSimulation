@@ -42,6 +42,9 @@
     <Filter Include="pbfsim\solidmodels">
       <UniqueIdentifier>{1de3731b-d6da-415e-a491-93b9e2a73f6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pbfsim\cloth">
+      <UniqueIdentifier>{a7c61ff8-826d-4b2d-a2dd-b6b75ef06e91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,6 +74,9 @@
     <ClCompile Include="solidmodelloader.cpp">
       <Filter>pbfsim\solidmodels</Filter>
     </ClCompile>
+    <ClCompile Include="cloth.cpp">
+      <Filter>pbfsim\cloth</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utilities.h">
@@ -93,6 +99,9 @@
     </ClInclude>
     <ClInclude Include="solidmodel.h">
       <Filter>pbfsim\solidmodels</Filter>
+    </ClInclude>
+    <ClInclude Include="cloth.h">
+      <Filter>pbfsim\cloth</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -134,6 +143,12 @@
     </None>
     <None Include="shaders\update_grid_sort.glsl">
       <Filter>shaders\sim_kernel</Filter>
+    </None>
+    <None Include="shaders\cloth_render_vertex.glsl">
+      <Filter>shaders\render</Filter>
+    </None>
+    <None Include="shaders\cloth_render_fragment.glsl">
+      <Filter>shaders\render</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
