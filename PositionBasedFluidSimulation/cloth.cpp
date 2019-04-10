@@ -91,6 +91,10 @@ void Cloth::predict()
 
 }
 
+void Cloth::blowByFluid(GLuint fluid_buffer)
+{
+}
+
 void Cloth::render(Camera & camera)
 {
     static GLuint program, vao, vbo, mMVPLocation;

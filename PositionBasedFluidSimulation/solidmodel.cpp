@@ -162,7 +162,7 @@ void SolidModel::runConstraintsAll(GLuint partical_buffer, int partical_count)
         step = glm::max(step, 1);
         for (int i = 0; i < m->_impulse_count_; i += step) {
             const FluidImpulse& impulse = impulses[i + m->_impulse_offset_];
-            m->positionImpulse(impulse.pos, impulse.normal, impulse.depth*0.02 * step);
+            m->positionImpulse(impulse.pos, impulse.normal, impulse.depth*2.0 * step/m->getMass());
         }
     }
     

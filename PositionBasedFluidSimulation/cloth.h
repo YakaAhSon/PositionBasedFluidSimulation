@@ -49,6 +49,8 @@ public:
 
     void predict();
 
+    void blowByFluid(GLuint fluid_buffer);
+
     void render(Camera& camera);
 
 };

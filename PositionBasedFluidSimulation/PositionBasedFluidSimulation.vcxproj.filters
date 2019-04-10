@@ -45,6 +45,9 @@
     <Filter Include="pbfsim\cloth">
       <UniqueIdentifier>{a7c61ff8-826d-4b2d-a2dd-b6b75ef06e91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\cloth_interaction">
+      <UniqueIdentifier>{63d0860c-2cbe-4022-9de4-87afdaf27822}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -149,6 +152,9 @@
     </None>
     <None Include="shaders\cloth_render_fragment.glsl">
       <Filter>shaders\render</Filter>
+    </None>
+    <None Include="shaders\blow_cloth.glsl">
+      <Filter>shaders\cloth_interaction</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

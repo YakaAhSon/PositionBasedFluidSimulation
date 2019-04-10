@@ -9,6 +9,7 @@
 
 #include"boundary.h"
 
+
 PBF pbf(64*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
@@ -147,6 +148,7 @@ int main(void)
     glEnable(GL_MULTISAMPLE);
     glViewport(0, 0, 512, 512);
 
+
     while (!glfwWindowShouldClose(window)) 
     {
         updateCamera();
@@ -167,6 +169,7 @@ int main(void)
 
         renderer.render();
         SolidModel::renderAll(renderer.camera);
+        pbf.cloth->render(renderer.camera);
 
         updateFPS();
         glfwSwapBuffers(window);

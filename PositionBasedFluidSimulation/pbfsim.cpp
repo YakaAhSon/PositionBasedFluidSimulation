@@ -186,10 +186,14 @@ void PBF::initialize()
     glBufferData(GL_SHADER_STORAGE_BUFFER, _grid_count_ * sizeof(Grid), NULL, GL_STREAM_READ);
 
     // setup scene
-    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 100.0));
-    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 100.0));
+    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 500.0));
+    _solid_models_.push_back(SolidModel::loadModel("assets\\Bunny.obj", 0, 1000.0));
+    _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 200.0));
     _solid_models_[0]->moveGlobal(glm::vec3(3, 2, 0));
-    _solid_models_[1]->moveGlobal(glm::vec3(-2, 1, 0));
+    _solid_models_[1]->moveGlobal(glm::vec3(-2, 1, 1));
+    _solid_models_[1]->moveGlobal(glm::vec3(-3, 0, -1));
+
+    cloth = new Cloth(10, 10, glm::vec3(9, 4, -4), glm::vec3(9, 4, 4), glm::vec3(9, -4, -4));
 }
 
 void PBF::sim(double timestep)
@@ -231,6 +235,8 @@ void PBF::sim(double timestep)
     applyBoundaryConstraint();
 
     updateGrid();
+
+    cloth->predict();
 
     for (int i = 0; i < steps_per_frame; i++) {
         calculateLambda();

@@ -13,6 +13,8 @@
 
 #include"solidmodel.h"
 
+#include"cloth.h"
+
 // simulate the fluid inside a box of (-5~5,-5~5,-5~5)
 
 class PBF 
@@ -87,6 +89,7 @@ public:
 
 public:
     std::vector<SolidModel*> _solid_models_;
+    Cloth* cloth;
 };
 
 #endif

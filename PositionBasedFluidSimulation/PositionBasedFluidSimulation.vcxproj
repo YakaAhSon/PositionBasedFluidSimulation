@@ -149,6 +149,7 @@
     <ClInclude Include="utilities.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\blow_cloth.glsl" />
     <None Include="shaders\calculate_delta_p.glsl" />
     <None Include="shaders\calculate_lambda.glsl" />
     <None Include="shaders\cloth_render_fragment.glsl" />
