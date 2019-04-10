@@ -36,6 +36,9 @@ private:
 
     glm::vec3 _bmin_;
     glm::vec3 _bmax_;
+    void updateBoundingBox();
+
+    float _vertex_size_;
 
     using Constraint = struct {
         Vertex* v1;
@@ -49,7 +52,7 @@ public:
 
     void predict();
 
-    void blowByFluid(GLuint fluid_buffer);
+    void blowByFluid(GLuint fluid_buffer, int partical_count);
 
     void render(Camera& camera);
 

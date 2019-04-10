@@ -193,7 +193,7 @@ void PBF::initialize()
     _solid_models_[1]->moveGlobal(glm::vec3(-2, 1, 1));
     _solid_models_[1]->moveGlobal(glm::vec3(-3, 0, -1));
 
-    cloth = new Cloth(10, 10, glm::vec3(9, 4, -4), glm::vec3(9, 4, 4), glm::vec3(9, -4, -4));
+    cloth = new Cloth(10, 10, glm::vec3(0, 4, -4), glm::vec3(0, 4, 4), glm::vec3(0, -4, -4));
 }
 
 void PBF::sim(double timestep)
@@ -245,6 +245,7 @@ void PBF::sim(double timestep)
 
         SolidModel::runConstraintsAll(_buffer_particals_, _partical_count_);
     }
+    cloth->blowByFluid(_buffer_particals_, _partical_count_);
 #endif
 
 }
