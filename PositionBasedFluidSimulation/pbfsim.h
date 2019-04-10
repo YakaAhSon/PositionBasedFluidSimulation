@@ -34,9 +34,6 @@ private:
     const float _grid_size_;// = _kernel_size_ * 0.7 #(_kernel_size_*0.5 should be sufficient)
     const int _grid_count_edge_;// ((int)(12/(_grid_size_))+1)
     const int _grid_count_; // _grid_count_edge_^3*2
-    const int _cell_max_partical_count_; // (_kernel_size_ / _grid_size_ + 2)^3 * 2
-
-    std::vector<glm::vec4> _partical_pos_;
 
 private:
 
@@ -47,7 +44,6 @@ private:
     void calculateLambda();
     void calculateDeltaP();
     void applyDensityConstraintPosDelta();
-    void copyPosToGrid();
     void applyBoundaryConstraint();
 
 public:
@@ -60,21 +56,33 @@ public:
 
 // buffers
 private:
-    GLuint _buffer_partical_pos_prev_;
-    GLuint _buffer_partical_pos_curr_;
+    // Partical Data Structure only in GPU memory
+    using Partical = struct {
+        glm::vec3 pos;
+        float lambda;
+        glm::vec3 pos_prev;
 
-    // grid
-    GLuint _buffer_cell_partical_count_;
-    GLuint _buffer_cell_particals_;
+        unsigned int grid_idx;
 
-    // partical index in array: _buffer_cell_particals_
-    GLuint _buffer_partical_grid_index_;
+        glm::vec3 delta_p;
+        unsigned int idx_in_grid;
+    };
+    GLuint _buffer_particals_;
+    GLuint _buffer_particals_tmp_;
 
-    // delta p
-    GLuint _buffer_partical_pos_delta_;
+    // unsigned int grid[] 
+    // used as both count and start
+    // count is calculated by GPU
+    // then download to cpu and calculate start iteratively
+    // then upload the list of grid start to GPU, and used to "sort" partical buffer
+    using Grid = struct {
+        GLuint partical_count;
+        GLuint partical_start;
+    };
+    GLuint _buffer_grids_;
 
 public:
-    GLuint getCurrPosVBO() { return _buffer_partical_pos_curr_; }
+    const GLuint getCurrPosVBO()const { return _buffer_particals_; }
 
 
 public:

@@ -6,9 +6,9 @@
 
 static const int sphere_details = 8;
 
-void PBFRenderer::initialize(GLuint vbo, int partical_count)
+void PBFRenderer::initialize(const PBF* pbf, int partical_count)
 {
-    _vbo_ = vbo;
+    _pbf_ = pbf;
     _partical_count_ = partical_count;
 
     _render_program_ = util::createProgram_VF(
@@ -16,7 +16,6 @@ void PBFRenderer::initialize(GLuint vbo, int partical_count)
         util::readFile("shaders\\fluid_render_fragment.glsl"));
 
     glBindAttribLocation(_render_program_, 0, "vVertex");
-    glBindAttribLocation(_render_program_, 1, "particalPosition");
     util::linkProgram(_render_program_);
     _render_program_mView_location_ = glGetUniformLocation(_render_program_, "mView");
     _render_program_mProjection_location_ = glGetUniformLocation(_render_program_, "mProjection");
@@ -37,11 +36,6 @@ void PBFRenderer::initialize(GLuint vbo, int partical_count)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, _vbo_);
-
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-    glVertexAttribDivisor(1, 1);
 
     glBindVertexArray(0);
 }
@@ -53,6 +47,9 @@ void PBFRenderer::render()
     glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
     glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
     glBindVertexArray(_partical_vao_);
+
+    GLuint partical_buffer = _pbf_->getCurrPosVBO();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
 
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details +2, _partical_count_);
     

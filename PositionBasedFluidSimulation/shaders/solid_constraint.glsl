@@ -3,8 +3,18 @@
 layout(local_size_x = 128, local_size_y = 1, local_size_z = 1)in;
 
 
-layout(std430, binding = 0) buffer pos_curr_buffer {
-    vec4 pos_curr[];
+layout(std430, binding = 0) buffer partical_buffer {
+    struct {
+        vec3 pos;
+        float lambda;
+        vec3 pos_prev;
+
+        uint grid_idx;
+
+        vec3 delta_p;
+
+        uint idx_in_grid;
+    }particals[];
 };
 
 layout(std430, binding = 1) buffer voxel_buffer {
@@ -40,7 +50,7 @@ uniform bool isFixed;
 
 void main(void)
 {
-    vec3 pos = (mView * vec4(pos_curr[gl_GlobalInvocationID.x].xyz, 1.0)).xyz;
+    vec3 pos = (mView * vec4(particals[gl_GlobalInvocationID.x].pos, 1.0)).xyz;
 
 
     ivec3 ipos = ivec3((pos - bBoxMin)/ voxelSize);
@@ -54,13 +64,16 @@ void main(void)
         int _padding_;
     } voxel = voxels[ipos.x * voxelSpaceSize.y*voxelSpaceSize.z + ipos.y*voxelSpaceSize.z + ipos.z];
 
+    if (voxel.solid==0)return;
+
     float depth = dot(voxel.pos - pos, voxel.norm);
+
 
     vec3 delta = depth*voxel.norm;
 
-    pos_curr[gl_GlobalInvocationID.x].xyz += mModelRot * delta;
+    particals[gl_GlobalInvocationID.x].pos += mModelRot * delta;
 
-    //if (isFixed) return;
+    if (isFixed) return;
 
     uint impulse_idx = atomicCounterIncrement(impulse_counter);
     fluid_impulses[impulse_idx].normal = voxel.norm;

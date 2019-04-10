@@ -1,40 +1,33 @@
 #version 450
 
 // compute shader
-// calculate lambda
-// save lambda in pos_curr[].w
+// calculate delta p
 
 layout(local_size_x = 128, local_size_y = 1, local_size_z = 1)in;
-
-layout(std430, binding = 0) buffer pos_curr_buffer {
-    vec4 pos_curr[];
-};
-
-layout(std430, binding = 1) buffer grid_partical_count_buffer {
-    uint grid_partical_count[];
-};
-
-
-layout(std430, binding = 2) buffer grid_particals_buffer {
+layout(std430, binding = 0) buffer partical_buffer {
     struct {
         vec3 pos;
         float lambda;
-    } grid_particals[];
+        vec3 pos_prev;
+
+        uint grid_idx;
+
+        vec3 delta_p;
+
+        uint idx_in_grid;
+    }particals[];
 };
 
-layout(std430, binding = 3) buffer pos_delta_buffer {
-    vec4 pos_delta[];
-};
-
-layout(std430, binding = 4) buffer partical_grid_buffer {
-    uint partical_grid_index[];
+layout(std430, binding = 1) buffer grid_buffer {
+    struct {
+        uint count;
+        uint start;
+    } grids[];
 };
 
 uniform float cellsize;
 
 uniform int grid_edge_count;
-
-uniform int cellmaxparticalcount;
 
 uniform float kernel_radius;
 
@@ -67,9 +60,7 @@ void main(void)
 
     int grid_edge_count2 = grid_edge_count * grid_edge_count * 2;
 
-    vec4 pos_full = pos_curr[gl_GlobalInvocationID.x];
-
-    vec3 pos = pos_full.xyz;
+    vec3 pos = particals[gl_GlobalInvocationID.x].pos;
 
     vec3 pos_min = pos - vec3(kernel_radius*0.9);
     vec3 pos_max = pos + vec3(kernel_radius*0.9);
@@ -80,8 +71,7 @@ void main(void)
 
     float kernel_radius2 = kernel_radius * kernel_radius;
 
-    uint my_idx = partical_grid_index[gl_GlobalInvocationID.x];
-    float lambda_i = grid_particals[my_idx].lambda;
+    float lambda_i = particals[gl_GlobalInvocationID.x].lambda;
 
     // for each neighbiyr cell
 
@@ -89,24 +79,20 @@ void main(void)
 
         uint cellidx = z * grid_edge_count2 + y * grid_edge_count*2 + x;
 
-        uint partical_count = grid_partical_count[cellidx];
+        uint partical_count = grids[cellidx].count;
+        uint partical_start = grids[cellidx].start;
 
         // for each partical in the neightbour cell
         for (uint i = 0; i < partical_count; i++) {
 
-            struct {
-                vec3 pos;
-                float lambda;
-            }neighbour = grid_particals[cellidx*cellmaxparticalcount + i];
+            vec3 neighbour = particals[partical_start + i].pos;
 
-
-
-            vec3 norm = pos - neighbour.pos;
+            vec3 norm = pos - neighbour;
 
             float r2 = dot(norm, norm);
 
             if (r2 < kernel_radius2&& r2>0.0000001) {
-                float lambda_j = neighbour.lambda;
+                float lambda_j = particals[partical_start + i].lambda;
                 float g = POLY6_gradient(r2);
                 norm = norm * g;
                 deltaP += norm * (lambda_i + lambda_j+scorr(r2)) / rho0;
@@ -119,5 +105,5 @@ void main(void)
 
 
     }
-    pos_delta[gl_GlobalInvocationID.x] = vec4(deltaP*0.5, 0);
+    particals[gl_GlobalInvocationID.x].delta_p = deltaP*0.5;
 }

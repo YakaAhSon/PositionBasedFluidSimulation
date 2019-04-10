@@ -5,9 +5,18 @@
 
 layout(local_size_x = 128, local_size_y = 1, local_size_z = 1)in;
 
+layout(std430, binding = 0) buffer partical_buffer {
+    struct {
+        vec3 pos;
+        float lambda;
+        vec3 pos_prev;
 
-layout(std430, binding = 0) buffer pos_curr_buffer {
-    vec4 pos_curr[];
+        uint grid_idx;
+
+        vec3 delta_p;
+
+        uint idx_in_grid;
+    }particals[];
 };
 
 
@@ -16,10 +25,11 @@ uniform vec3 bmax;
 
 void main(void)
 {
-    vec4 pos = pos_curr[gl_GlobalInvocationID.x];
+    vec3 pos = particals[gl_GlobalInvocationID.x].pos;
 
-    pos = max(pos, vec4(bmin,0.0));
+    pos = max(pos, bmin);
 
-    pos = min(pos, vec4(bmax, 0.0));
-    pos_curr[gl_GlobalInvocationID.x] = pos;
+    pos = min(pos, bmax);
+
+    particals[gl_GlobalInvocationID.x].pos = pos;
 }

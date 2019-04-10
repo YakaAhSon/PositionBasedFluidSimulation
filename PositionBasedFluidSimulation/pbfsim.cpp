@@ -16,37 +16,66 @@ void PBF::predict()
 
 
     glUseProgram(program);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_partical_pos_prev_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
 
     runForAllParticals();
 }
 
 void PBF::updateGrid()
 {
-    static GLuint program = util::createProgram_C(readFile("shaders\\update_grid.glsl"));
+    /* schema:
+    step1. GPU: find the grid index of each partical, count partical number of each grid
+    step2. Download grid_count_buffer to local memory
+    step3. CPU: calculate grid start for each grid
+    step4. Upload grid_start_buffer to GOU memory
+    step5. GPU: "Sort" particals according to grid. Save to _tmp_
+    step6. swap partical_buffer and partical_buffer_tmp
+    */
+
+    // step1. GPU: find grid index, count particals for each grid
+    static GLuint program = util::createProgram_C(readFile("shaders\\update_grid_findgrid.glsl"));
     bindUniformLocation(cellsize);
     bindUniformLocation(grid_edge_count);
-    bindUniformLocation(cellmaxparticalcount);
     bindUniformLocation(grid_edge_count2);
 
     GLuint zero = 0;
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_partical_count_);
-    glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
+    glClearNamedBufferData(_buffer_grids_, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
 
     glUseProgram(program);
     glUniform1f(cellsize, _grid_size_);
     glUniform1i(grid_edge_count, _grid_count_edge_);
     glUniform1i(grid_edge_count2, _grid_count_edge_*_grid_count_edge_);
-    glUniform1i(cellmaxparticalcount, static_cast<GLint>(_cell_max_partical_count_));
     
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
-
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grids_);
     runForAllParticals();
+
+    // step2. Download grid_count_buffer to local memory
+    static std::vector<Grid> grids(_grid_count_);
+    glGetNamedBufferSubData(_buffer_grids_, 0, _grid_count_ * sizeof(Grid), &grids[0]);
+
+    // step3. CPU: calculate grid start for each grid
+    GLuint start = 0;
+    for (Grid& g : grids) {
+        g.partical_start = start;
+        start += g.partical_count;
+    }
+
+    // step4. upload grids
+    glNamedBufferSubData(_buffer_grids_, 0, sizeof(Grid)*_grid_count_, &grids[0]);
+
+    // step5. "Sort" particals
+    static GLuint program_sort = util::createProgram_C(readFile("shaders\\update_grid_sort.glsl"));
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_particals_tmp_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_grids_);
+
+    glUseProgram(program_sort);
+    runForAllParticals();
+
+    // swap
+    std::swap(_buffer_particals_, _buffer_particals_tmp_);
 }
 
 void PBF::applyBoundaryConstraint()
@@ -57,7 +86,7 @@ void PBF::applyBoundaryConstraint()
 
 
     glUseProgram(program);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
 
     glUniform3fv(bmin,1, &boundary::bmin[0]);
     glUniform3fv(bmax,1, &boundary::bmax[0]);
@@ -69,19 +98,15 @@ void PBF::calculateLambda()
     static GLuint program  = util::createProgram_C(readFile("shaders\\calculate_lambda.glsl"));
     bindUniformLocation(cellsize);
     bindUniformLocation(grid_edge_count);
-    bindUniformLocation(cellmaxparticalcount);
     bindUniformLocation(kernel_radius);
 
     glUseProgram(program);
-    glUniform1i(cellmaxparticalcount, _cell_max_partical_count_);
     glUniform1f(cellsize, _grid_size_);
     glUniform1f(kernel_radius, _kernel_radius_);
     glUniform1i(grid_edge_count, _grid_count_edge_);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grids_);
 
     runForAllParticals();
 }
@@ -99,14 +124,10 @@ void PBF::calculateDeltaP()
 
     glUniform1f(cellsize, _grid_size_);
     glUniform1i(grid_edge_count, _grid_count_edge_);
-    glUniform1i(cellmaxparticalcount, _cell_max_partical_count_);
     glUniform1f(kernel_radius, _kernel_radius_);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_pos_delta_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, _buffer_partical_grid_index_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_grids_);
 
     runForAllParticals();
 }
@@ -116,22 +137,7 @@ void PBF::applyDensityConstraintPosDelta()
     static GLuint program = util::createProgram_C(readFile("shaders\\density_constraint_apply.glsl"));
 
     glUseProgram(program);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_partical_pos_delta_);
-
-    runForAllParticals();
-}
-
-void PBF::copyPosToGrid()
-{
-    static GLuint program = util::createProgram_C(readFile("shaders\\partical_to_grid.glsl"));
-
-    glUseProgram(program);
-
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_partical_pos_curr_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, _buffer_cell_partical_count_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _buffer_cell_particals_);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _buffer_partical_grid_index_);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _buffer_particals_);
 
     runForAllParticals();
 }
@@ -144,54 +150,42 @@ PBF::PBF(int partical_count, float partical_size, float fluid_density, float ker
     _kernel_radius_(kernel_radius),
     _grid_size_(kernel_radius),
     _grid_count_edge_((int)(12 / (_grid_size_)) + 1),
-    _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_*2),
-    _cell_max_partical_count_(pow(static_cast<int>(kernel_radius*2 / _partical_size_) + 1, 3)*2)
-    
+    _grid_count_(_grid_count_edge_*_grid_count_edge_*_grid_count_edge_*2)    
 {
-    _partical_pos_.resize(_partical_count_);
 }
 
 void PBF::initialize()
 {
-    _partical_pos_.clear();
-    for (float x = -5.0; x < 5.0; x+=_partical_size_) {
-        for (float y = 0.0; y < 5.0; y += _partical_size_) {
+    std::vector<Partical> particals;
+    particals.reserve(_partical_count_);
+    for (float y = 5.0; y > -5.0; y-=_partical_size_) {
+        for (float x = -7.0; x < 7.0; x += _partical_size_) {
             for (float z = -5.0; z < 5.0; z += _partical_size_){
-                _partical_pos_.push_back(glm::vec4(x,y,z,0));
+                particals.push_back({
+                    glm::vec3(x,y,z) ,
+                    0,
+                    glm::vec3(x,y,z),
+                    });
             }
         }
     }
-    _partical_pos_.resize(_partical_count_);
-
-    
+    particals.resize(_partical_count_);
 
 
-    glGenBuffers(1, &_buffer_partical_pos_prev_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_prev_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_READ);
+    glGenBuffers(1, &_buffer_particals_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_particals_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Partical)*_partical_count_, &particals[0], GL_DYNAMIC_COPY);
 
-    glGenBuffers(1, &_buffer_partical_pos_curr_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_curr_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, &_partical_pos_[0], GL_DYNAMIC_READ);
+    glGenBuffers(1, &_buffer_particals_tmp_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_particals_tmp_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Partical)*_partical_count_, NULL, GL_DYNAMIC_COPY);
 
-    glGenBuffers(1, &_buffer_partical_pos_delta_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_pos_delta_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4)*_partical_count_, NULL, GL_DYNAMIC_READ);
-
-       
     // cell buffers
-    glGenBuffers(1, &_buffer_cell_partical_count_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_partical_count_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, _grid_count_ * sizeof(GLuint), NULL, GL_DYNAMIC_COPY);
+    glGenBuffers(1, &_buffer_grids_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_grids_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, _grid_count_ * sizeof(Grid), NULL, GL_STREAM_READ);
 
-    glGenBuffers(1, &_buffer_cell_particals_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_cell_particals_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, (sizeof(GLuint)+sizeof(glm::vec3))*_grid_count_*_cell_max_partical_count_, NULL, GL_DYNAMIC_COPY);
-
-    glGenBuffers(1, &_buffer_partical_grid_index_);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, _buffer_partical_grid_index_);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(GLuint)*_partical_count_, NULL, GL_DYNAMIC_COPY);
-
+    // setup scene
     _solid_models_.push_back(SolidModel::loadModel("assets\\torus.obj", 0, 100.0));
     _solid_models_.push_back(SolidModel::loadModel("assets\\bunny.obj", 1, 100.0));
     _solid_models_[0]->moveGlobal(glm::vec3(2, -2, 0));
@@ -233,16 +227,16 @@ void PBF::sim(double timestep)
 
     SolidModel::predictAll();
     predict();
-    updateGrid();
     applyBoundaryConstraint();
 
+    updateGrid();
+
     for (int i = 0; i < steps_per_frame; i++) {
-        copyPosToGrid();
         calculateLambda();
         calculateDeltaP();
         applyDensityConstraintPosDelta();
 
-        SolidModel::runConstraintsAll(_buffer_partical_pos_curr_, _partical_count_);
+        SolidModel::runConstraintsAll(_buffer_particals_, _partical_count_);
     }
 #endif
 

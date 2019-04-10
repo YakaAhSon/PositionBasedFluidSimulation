@@ -5,6 +5,9 @@
 #include<glad/glad.h>
 
 #include"camera.h"
+
+#include"pbfsim.h"
+
 class PBFRenderer
 {
 private:
@@ -17,15 +20,17 @@ private:
     
     GLuint _partical_vao_;
 
-    GLuint _vbo_;
+    GLuint* _p_vbo_;
 
     int _partical_count_;
+
+    const PBF* _pbf_;
 
 public:
     Camera camera;
 
 public:
-    void initialize(GLuint vbo, int partical_count);
+    void initialize(const PBF* pbf, int partical_count);
 
     void render();
 };

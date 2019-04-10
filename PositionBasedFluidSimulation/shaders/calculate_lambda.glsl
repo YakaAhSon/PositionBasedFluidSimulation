@@ -6,30 +6,30 @@
 
 layout(local_size_x = 128, local_size_y = 1, local_size_z = 1)in;
 
-layout(std430, binding = 0) buffer pos_curr_buffer {
-    vec4 pos_curr[];
-};
-
-layout(std430, binding = 1) buffer grid_partical_count_buffer {
-    uint grid_partical_count[];
-};
-
-layout(std430, binding = 2) buffer grid_particals_buffer {
+layout(std430, binding = 0) buffer partical_buffer {
     struct {
         vec3 pos;
         float lambda;
-    }grid_particals[];
+        vec3 pos_prev;
+
+        uint grid_idx;
+
+        vec3 delta_p;
+
+        uint idx_in_grid;
+    }particals[];
 };
 
-layout(std430, binding = 3) buffer partical_grid_buffer {
-    uint partical_grid_index[];
+layout(std430, binding = 1) buffer grid_buffer {
+    struct {
+        uint count;
+        uint start;
+    } grids[];
 };
 
 uniform float cellsize;
 
 uniform int grid_edge_count;
-
-uniform int cellmaxparticalcount;
 
 uniform float kernel_radius;
 
@@ -57,7 +57,7 @@ void main(void)
 {
     int grid_edge_count2 = grid_edge_count * grid_edge_count * 2;
 
-    vec3 pos = pos_curr[gl_GlobalInvocationID.x].xyz;
+    vec3 pos = particals[gl_GlobalInvocationID.x].pos;
 
     vec3 pos_min = pos - vec3(kernel_radius*0.9);
     vec3 pos_max = pos + vec3(kernel_radius*0.9);
@@ -78,18 +78,16 @@ void main(void)
 
         uint cellidx = z * grid_edge_count2 + y * grid_edge_count*2 + x;
 
-        uint partical_count = grid_partical_count[cellidx];
+        uint partical_count = grids[cellidx].count;
+        uint partical_start = grids[cellidx].start;
 
         // for each partical in the neightbour cell
         for (uint i = 0; i < partical_count; i++) {
 
-            struct {
-                vec3 pos;
-                float lambda;
-            }neighbour = grid_particals[cellidx*cellmaxparticalcount + i];
+            vec3 neighbour = particals[partical_start+i].pos;
             //uint neighbour_idx = 0;
 
-            vec3 norm = neighbour.pos - pos;
+            vec3 norm = neighbour - pos;
 
             float r2 = dot(norm, norm);
 
@@ -120,10 +118,7 @@ void main(void)
 
     float C = rho / rho0 - 1;
 
-
-    uint my_idx = partical_grid_index[gl_GlobalInvocationID.x];
-
     // lambda = - C/(gradient_j_2 + gradient_i^2)
 
-    grid_particals[my_idx].lambda = -C / (gradient_j_2 + dot(gradient_i, gradient_i) + 3.0*rho0*rho0)*rho0*rho0;
+    particals[gl_GlobalInvocationID.x].lambda = -C / (gradient_j_2 + dot(gradient_i, gradient_i) + 3.0*rho0*rho0)*rho0*rho0;
 }

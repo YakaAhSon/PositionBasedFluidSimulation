@@ -9,7 +9,7 @@
 
 #include"boundary.h"
 
-PBF pbf(50*1024, 0.2, 800.0, 0.35);
+PBF pbf(64*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
 static void updateFPS() 
@@ -135,7 +135,7 @@ int main(void)
     pbf.initialize();
 
 
-    renderer.initialize(pbf.getCurrPosVBO(), pbf.getParticalCount());
+    renderer.initialize(&pbf, pbf.getParticalCount());
 
     renderer.camera.moveForward(-10.0);
     renderer.camera.moveUp(1.0);

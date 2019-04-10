@@ -57,7 +57,7 @@ void SolidModel::voxelize()
 GLuint SolidModel::_impulse_buffer_ = 0;
 GLuint SolidModel::_impulse_counter_buffer_ = 0;
 
-void SolidModel::runConstraintsAll(GLuint partical_pos_buffer, int partical_count)
+void SolidModel::runConstraintsAll(GLuint partical_buffer, int partical_count)
 {
     static GLuint program = util::createProgram_C(util::readFile("shaders\\solid_constraint.glsl"));
     bindUniformLocation(bBoxMin);
@@ -88,7 +88,7 @@ void SolidModel::runConstraintsAll(GLuint partical_pos_buffer, int partical_coun
     }();
 
     // common settings for fixed and unfixed modles
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_pos_buffer);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
     glUseProgram(program);
     glUniform1f(voxelSize, _voxel_size_);
 
