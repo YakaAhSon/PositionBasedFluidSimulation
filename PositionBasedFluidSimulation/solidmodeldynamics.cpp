@@ -12,6 +12,8 @@ void SolidModel::predict()
     _COM_prev_ = tmp;
 
     glm::quat orientation_delta = _orientation_ * glm::inverse(_orientation_prev_);
+    glm::quat iq = glm::identity<glm::quat>();
+    orientation_delta = orientation_delta * 0.9f + iq * 0.1f;
 
     glm::quat tmpquat = _orientation_;
 
@@ -82,8 +84,9 @@ void SolidModel::predictAll() {
     for (int i=0;i<size;i++)
     {
         SolidModel* m1 = _unfixed_models_[i];
-        for (int j = i+1; j < size; j++)
+        for (int j = 0; j < size; j++)
         {
+            if (i == j)continue;
             SolidModel* m2 = _unfixed_models_[j];
             m1->solveCollision(m2);
         }
