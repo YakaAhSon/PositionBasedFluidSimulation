@@ -230,7 +230,7 @@ void PBF::sim(double timestep)
     std::cout << std::endl;
 #else
 
-    SolidModel::predictAll();
+    SolidModel::predictAll(cloth);
     predict();
     applyBoundaryConstraint();
 

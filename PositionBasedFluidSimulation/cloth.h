@@ -9,17 +9,18 @@
 
 #include"camera.h"
 
+using Vertex = struct {
+    glm::vec3 pos;
+    int fixed;
+    glm::vec3 pos_prev;
+    int padding;
+};
+
 class Cloth {
 private:
     const int _grid_x_;
     const int _grid_y_;
-
-    using Vertex = struct {
-        glm::vec3 pos;
-        int fixed;
-        glm::vec3 pos_prev;
-        int padding;
-    };
+    
     std::vector<Vertex> _vertices_;
     GLuint _vertices_buffer_;
 
@@ -55,6 +56,8 @@ public:
     void blowByFluid(GLuint fluid_buffer, int partical_count);
 
     void render(Camera& camera);
+
+    std::vector<Vertex>& getVertices() { return _vertices_;}
 
 };
 

@@ -168,6 +168,11 @@ void SolidModel::runConstraintsAll(GLuint partical_buffer, int partical_count)
     
 }
 
+const std::vector<SolidModel*>& SolidModel::getModels()
+{
+    return _unfixed_models_;
+}
+
 void SolidModel::render(Camera& camera)
 {
 

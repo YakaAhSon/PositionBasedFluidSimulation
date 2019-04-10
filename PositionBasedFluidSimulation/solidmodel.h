@@ -118,6 +118,8 @@ public:
     const float& getMass()const { return _mass_; }
     glm::vec3 getGlobalPos(glm::vec3 pos);
     glm::vec3 getLocalPos(glm::vec3 pos);
+    static const std::vector<SolidModel*>& getModels();
+    void collisionWithCloth(void* cloth);
     // pos and norm are in local coordinate!
     void positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth);
     // get voxel in local coordinate
@@ -140,7 +142,7 @@ public:
 
     static void runConstraintsAll(GLuint partical_pos_buffer, int partical_count);
 
-    static void predictAll();
+    static void predictAll(void* c);
     static void renderAll(Camera& camera);
 
 public:

@@ -1,7 +1,7 @@
 #include "solidmodel.h"
 
 #include"utilities.h"
-
+#include "cloth.h"
 #include"boundary.h"
 
 
@@ -71,7 +71,7 @@ void SolidModel::predict()
     //t.toc("RigidBodu=y Simulation Time");
 }
 
-void SolidModel::predictAll() {
+void SolidModel::predictAll(void* c) {
     for (auto m : _unfixed_models_) {
         m->predict();
     }
@@ -90,6 +90,11 @@ void SolidModel::predictAll() {
             SolidModel* m2 = _unfixed_models_[j];
             m1->solveCollision(m2);
         }
+    }
+
+    for (auto model : _unfixed_models_)
+    {
+        model->collisionWithCloth(c);
     }
 }
 
@@ -123,7 +128,53 @@ void SolidModel::positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth)
     _orientation_ = _orientation_*deltaRot;
 }
 
+void SolidModel::collisionWithCloth(void* c)
+{
+    Cloth* cloth = (Cloth*)c;
 
+    std::vector<Vertex>& vertices = cloth->getVertices();
+
+    for (auto& v : vertices)
+    {
+        glm::vec3 pos = v.pos;
+        glm::vec3 pos_local = this->getLocalPos(pos);
+
+        int bFixed = v.fixed;
+
+        Voxel* voxel = getVoxelLocal(pos_local);
+        if (voxel == NULL || !voxel->solid)continue;
+
+        glm::vec3 dir = voxel->pos - pos_local;
+        float l = glm::length(dir);
+        glm::vec3 norm = voxel->norm;
+        float depth = glm::dot(dir, norm);
+
+        if (depth < 0.0f)
+        {
+            continue;
+        }
+
+        float depth1, depth2;
+        // not correct simulation, just for visualization
+        if (bFixed)
+        {
+            depth1 = depth;
+            depth2 = 0.0f;
+        }
+        else
+        {
+            depth1 = depth*0.3;
+            depth2 = depth * 0.7;
+        }
+
+        this->positionImpulse(v.pos, -norm, depth1);
+
+        glm::vec3 norm_g = glm::rotate(_orientation_, norm);
+
+        v.pos += norm_g * depth2;
+    }
+    
+}
 // m.vertices vs self.voxel
 void SolidModel::solveCollision(SolidModel * m)
 {
