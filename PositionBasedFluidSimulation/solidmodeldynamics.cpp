@@ -73,6 +73,21 @@ void SolidModel::predictAll() {
     for (auto m : _unfixed_models_) {
         m->predict();
     }
+
+    int size = _unfixed_models_.size();
+
+    if (size < 2)
+        return;
+
+    for (int i=0;i<size;i++)
+    {
+        SolidModel* m1 = _unfixed_models_[i];
+        for (int j = i+1; j < size; j++)
+        {
+            SolidModel* m2 = _unfixed_models_[j];
+            m1->solveCollision(m2);
+        }
+    }
 }
 
 void SolidModel::renderAll(Camera & camera)
@@ -110,7 +125,34 @@ void SolidModel::positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth)
 void SolidModel::solveCollision(SolidModel * m)
 {
     for (const ModelVertexData & v : m->_mesh_) {
+        glm::vec3 pos_other_g = m->getGlobalPos(v.pos);
+        glm::vec3 pos_self_l = this->getLocalPos(pos_other_g);
 
+        Voxel* voxel = getVoxelLocal(pos_self_l);
+        if (voxel == NULL || !voxel->solid)continue;
+
+        glm::vec3 dir = voxel->pos - pos_self_l;
+        float l = glm::length(dir);
+        glm::vec3 norm = voxel->norm;
+        float depth = glm::dot(dir, norm);
+
+        if (depth<0.0f)
+        {
+            continue;
+        }
+
+        float totalM = this->getMass() + m->getMass();
+
+        float depth1 = depth * m->getMass() / totalM;
+        float depth2 = depth * this->getMass() / totalM;
+
+        glm::vec3 norm_g = glm::rotate(_orientation_, norm);
+
+        glm::quat invO = glm::inverse(m->_orientation_);
+        glm::vec3 norm_other_l = glm::rotate(invO, norm_g);
+
+        this->positionImpulse(v.pos, -norm, depth1);
+        m->positionImpulse(pos_self_l, norm_other_l, depth2);
     }
 }
 
