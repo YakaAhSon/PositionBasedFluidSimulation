@@ -13,6 +13,7 @@ Based on [this paper](http://mmacklin.com/pbf_sig_preprint.pdf).
 * `SPACE` to start/pause simulation
 * `N` to toggle one step simulation when paused
 * `W`,`A`,`S`,`D` to roam around
+* `Scroll` to zoom in/out
 * `Left Click and Drag` to change camera direction
   
 ## Performence
