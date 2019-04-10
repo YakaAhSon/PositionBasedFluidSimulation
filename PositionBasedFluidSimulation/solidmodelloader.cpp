@@ -86,13 +86,7 @@ SolidModel::SolidModel(const std::string& filename) {
     _voxels_.resize(_voxel_space_size_.x*_voxel_space_size_.y*_voxel_space_size_.z);
 
     // init pos and orientation
-    _COM_ = glm::vec3(0);
-    for (auto& v : _mesh_) {
-        _COM_ += v.pos;
-    }
-    _COM_ = _COM_ / (float)_mesh_.size();
-    _COM_prev_ = _COM_;
-    _COM_local_ = _COM_;
+    _COM_local_ = _COM_prev_ = glm::vec3(0);
 
     _orientation_ = _orientation_prev_ = glm::quat_identity<float,glm::qualifier::highp>();
 
@@ -106,9 +100,9 @@ SolidModel::SolidModel(const std::string& filename) {
 
     for (const auto& v : _mesh_) {
         float x, y, z;
-        x = v.pos.x;
-        y = v.pos.y;
-        z = v.pos.z;
+        x = v.pos.x - _COM_local_.x;
+        y = v.pos.y - _COM_local_.y;
+        z = v.pos.z - _COM_local_.z;
         Ixx += y * y + z * z;
         Iyy += x * x + z * z;
         Izz += x * x + y * y;

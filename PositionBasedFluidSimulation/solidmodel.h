@@ -106,8 +106,6 @@ private:
 private:
     // dynamics
     void predict();
-    // pos and norm are in local coordinate!
-    void positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth);
     void positionImpulseGlobal(glm::vec3 pos, glm::vec3 norm, float depth);
     // m.verticed vs self.voxels
     void solveCollision(SolidModel* m);
@@ -117,10 +115,23 @@ private:
 public:
     const glm::mat4& getMModel()const { return _mModel_; }
     const glm::mat4& getMView()const { return _mView_; }
+    const float& getMass()const { return _mass_; }
+    glm::vec3 getGlobalPos(glm::vec3 pos);
+    glm::vec3 getLocalPos(glm::vec3 pos);
+    // pos and norm are in local coordinate!
+    void positionImpulse(glm::vec3 pos, glm::vec3 norm, float depth);
     // get voxel in local coordinate
-    inline const Voxel& getVoxelLocal(const glm::vec3& v) const{
-        glm::ivec3 iv = glm::ivec3(v - _bmin_);
-        return _voxels_[iv.x*_voxel_space_size_.y*_voxel_space_size_.z + iv.y*_voxel_space_size_.z + iv.z];
+    inline Voxel* getVoxelLocal(const glm::vec3& v){
+        glm::ivec3 iv = glm::ivec3((v - _bmin_)/ _voxel_size_);
+
+        if ((iv.x<0 || iv.x >=_voxel_space_size_.x) ||
+            (iv.y<0 || iv.y >=_voxel_space_size_.y) || 
+            (iv.z<0 || iv.z >=_voxel_space_size_.z))
+        {
+            return NULL;
+        }
+
+        return &(_voxels_[iv.x*_voxel_space_size_.y*_voxel_space_size_.z + iv.y*_voxel_space_size_.z + iv.z]);
     }
 
 public:

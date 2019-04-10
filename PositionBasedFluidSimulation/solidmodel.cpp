@@ -57,6 +57,22 @@ void SolidModel::voxelize()
 GLuint SolidModel::_impulse_buffer_ = 0;
 GLuint SolidModel::_impulse_counter_buffer_ = 0;
 
+
+glm::vec3 SolidModel::getGlobalPos(glm::vec3 pos)
+{
+    return _COM_ + glm::rotate(_orientation_, pos);
+}
+
+
+glm::vec3 SolidModel::getLocalPos(glm::vec3 pos)
+{
+    glm::vec3 delta = pos - _COM_;
+
+    glm::quat invO = glm::inverse(_orientation_);
+
+    return glm::rotate(invO, delta);
+}
+
 void SolidModel::runConstraintsAll(GLuint partical_buffer, int partical_count)
 {
     static GLuint program = util::createProgram_C(util::readFile("shaders\\solid_constraint.glsl"));
