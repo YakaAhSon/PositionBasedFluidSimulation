@@ -16,7 +16,8 @@ Based on [this paper](http://mmacklin.com/pbf_sig_preprint.pdf).
 * `W`,`A`,`S`,`D` to roam around
 * `Scroll` to zoom in/out
 * `Left Click and Drag` to change camera direction
-  
+* `P` toggel surface|partical rendering
+* `V` toggel wave
 ## Performence
 We test the performence on `GTX1060` with `5` iterations per frame.
 
