@@ -177,6 +177,12 @@
     <None Include="shaders\fluid_normal.glsl">
       <Filter>shaders\fluid_renderer</Filter>
     </None>
+    <None Include="shaders\cal_thickness_vertex.glsl">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\cal_thickness_fragment.glsl">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shaders\boundary_constraint.glsl">

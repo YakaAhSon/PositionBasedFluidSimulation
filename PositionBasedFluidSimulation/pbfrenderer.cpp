@@ -96,21 +96,60 @@ void PBFRenderer::render()
 
     }();
 
+    
+
+    // Thickness Map
+    static fboWrapper _thickness = []() {
+        fboWrapper fbo;
+        fbo.init(1024,1024);
+        return fbo;
+    }();
+
+    static GLuint thickness_renderer = []() {
+        GLuint p = util::createProgram_VF(
+            util::readFile("shaders\\cal_thickness_vertex.glsl"),
+            util::readFile("shaders\\cal_thickness_fragment.glsl")
+        );
+        glBindAttribLocation(p, 0, "vVertex");
+        util::linkProgram(p);
+        return p;
+    }();
+
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, _depth._framebufferName);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _thickness._framebufferName);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBlitFramebuffer(0, 0, 1024, 1024, 0, 0, 1024, 1024, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+    glUseProgram(thickness_renderer);
+    
+    glUniformMatrix4fv(glGetUniformLocation(thickness_renderer,"mView"), 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(thickness_renderer, "mProjection"), 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
+
+    glBindVertexArray(_partical_vao_);
+    GLuint partical_buffer = _pbf_->getCurrPosVBO();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDepthMask(GL_FALSE);
+    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details + 2, _partical_count_);
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
+
 // Particle Depth
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _depth._framebufferName);
 
+
     glClear(GL_COLOR_BUFFER_BIT);
-    
+
     glUseProgram(_render_program_);
 
     glUniform1i(glGetUniformLocation(_render_program_, "renderPartical"), 0);
     glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
     glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
-    glBindVertexArray(_partical_vao_);
 
-    GLuint partical_buffer = _pbf_->getCurrPosVBO();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
 
 
@@ -184,14 +223,14 @@ void PBFRenderer::render()
 
     glUseProgram(_screen_program_);
     glBindVertexArray(vao);
-    glUniform1i(glGetUniformLocation(_screen_program_, "depthTexture"), 0);
+    glUniform1i(glGetUniformLocation(_screen_program_, "thicknessTexture"), 0);
 
     glUniformMatrix4fv(glGetUniformLocation(_screen_program_, "mProjection"), 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
 
     glUniform2fv(glGetUniformLocation(_screen_program_, "tanfov"), 1, &camera.getTanFov()[0]);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE, _depth._renderedTexture);
+    glBindTexture(GL_TEXTURE_RECTANGLE, _thickness._renderedTexture);
 
 
 

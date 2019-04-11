@@ -154,6 +154,8 @@
     <None Include="shaders\blur.vs" />
     <None Include="shaders\calculate_delta_p.glsl" />
     <None Include="shaders\calculate_lambda.glsl" />
+    <None Include="shaders\cal_thickness_fragment.glsl" />
+    <None Include="shaders\cal_thickness_vertex.glsl" />
     <None Include="shaders\cloth_render_fragment.glsl" />
     <None Include="shaders\cloth_render_vertex.glsl" />
     <None Include="shaders\density_constraint_apply.glsl" />

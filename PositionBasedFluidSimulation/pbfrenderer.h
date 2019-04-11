@@ -31,6 +31,7 @@ private:
     GLuint* _p_vbo_;
 
     int _partical_count_;
+    
 
     const PBF* _pbf_;
 public:
