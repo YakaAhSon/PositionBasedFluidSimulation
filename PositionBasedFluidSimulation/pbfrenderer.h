@@ -8,11 +8,19 @@
 
 #include"pbfsim.h"
 
+class fboWrapper {
+public:
+    GLuint _framebufferName, _renderedTexture, _depthrenderbuffer;
+    void init(int nWidth, int nHeight);
+};
+
 class PBFRenderer
 {
 private:
     GLuint _sphere_vertices_buffer_;
     GLuint _render_program_;
+    GLuint _blur_program_;
+    GLuint _normal_program_;
 
     GLuint _render_program_mView_location_;
     GLuint _render_program_mProjection_location_;
@@ -25,6 +33,12 @@ private:
     int _partical_count_;
 
     const PBF* _pbf_;
+
+    fboWrapper _depth;
+    fboWrapper _blur;
+    fboWrapper _normal;
+
+    GLuint _screen_program_;
 
 public:
     Camera camera;
