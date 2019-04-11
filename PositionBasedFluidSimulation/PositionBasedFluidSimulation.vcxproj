@@ -150,6 +150,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\blow_cloth.glsl" />
+    <None Include="shaders\blur.fs" />
+    <None Include="shaders\blur.vs" />
     <None Include="shaders\calculate_delta_p.glsl" />
     <None Include="shaders\calculate_lambda.glsl" />
     <None Include="shaders\cloth_render_fragment.glsl" />
@@ -157,8 +159,11 @@
     <None Include="shaders\density_constraint_apply.glsl" />
     <None Include="shaders\fluid_render_fragment.glsl" />
     <None Include="shaders\fluid_render_vertex.glsl" />
+    <None Include="shaders\framebuffers_screen.fs" />
+    <None Include="shaders\framebuffers_screen.vs" />
     <None Include="shaders\mesh_render_fragment.glsl" />
     <None Include="shaders\mesh_render_vertex.glsl" />
+    <None Include="shaders\fluid_normal.glsl" />
     <None Include="shaders\predict.glsl" />
     <None Include="shaders\solid_constraint.glsl" />
     <None Include="shaders\solid_genvoxel_fragment.glsl" />

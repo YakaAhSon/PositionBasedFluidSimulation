@@ -10,6 +10,8 @@ Camera::Camera()
 
 void Camera::setViewFrustum(float fovy, float aspect) 
 {
+    tanfov.y = tanf(fovy / 2.0f);
+    tanfov.x = tanfov.y * aspect;
     m_projection = glm::perspective(fovy, aspect, 1.0f, 100.0f);
 }
 

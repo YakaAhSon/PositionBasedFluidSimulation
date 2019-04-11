@@ -48,6 +48,9 @@
     <Filter Include="shaders\cloth_interaction">
       <UniqueIdentifier>{63d0860c-2cbe-4022-9de4-87afdaf27822}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\fluid_renderer">
+      <UniqueIdentifier>{8b8f0d18-a204-4523-81fb-1b4e570c3a8a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -108,12 +111,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fluid_render_vertex.glsl">
-      <Filter>shaders\render</Filter>
-    </None>
-    <None Include="shaders\fluid_render_fragment.glsl">
-      <Filter>shaders\render</Filter>
-    </None>
     <None Include="shaders\predict.glsl">
       <Filter>shaders\sim_kernel</Filter>
     </None>
@@ -155,6 +152,27 @@
     </None>
     <None Include="shaders\blow_cloth.glsl">
       <Filter>shaders\cloth_interaction</Filter>
+    </None>
+    <None Include="shaders\blur.fs">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\blur.vs">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\framebuffers_screen.fs">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\framebuffers_screen.vs">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\fluid_render_vertex.glsl">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\fluid_render_fragment.glsl">
+      <Filter>shaders\fluid_renderer</Filter>
+    </None>
+    <None Include="shaders\fluid_normal.glsl">
+      <Filter>shaders\fluid_renderer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,7 @@
 static const int sphere_details = 8;
 static const glm::vec2 blurDirX = glm::vec2(1.0f / 1024.0f, 0.0f);
 static const glm::vec2 blurDirY = glm::vec2(0.0f, 1.0f / 1024.0f);
-static float filterRadius = 3.0f;
+static float filterRadius = 30.0f;
 
 void PBFRenderer::initialize(const PBF* pbf, int partical_count)
 {
@@ -62,6 +62,10 @@ void PBFRenderer::initialize(const PBF* pbf, int partical_count)
 
 void PBFRenderer::render()
 {
+    int screensize[4];
+    glGetIntegerv(GL_VIEWPORT, screensize);
+
+    glViewport(0, 0, 1024, 1024);
 
     static const GLfloat g_quad_vertex_buffer_data[18] = {
         -1.0f, -1.0f, 0.0f,
@@ -104,10 +108,7 @@ void PBFRenderer::render()
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-    int screensize[4];
-    glGetIntegerv(GL_VIEWPORT, screensize);
-
-    glViewport(0, 0, 1024, 1024);
+    
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details +2, _partical_count_);
     glBindVertexArray(0);
 
@@ -122,56 +123,81 @@ void PBFRenderer::render()
 
     glBindVertexArray(vao);
     glUniform1i(glGetUniformLocation(_blur_program_, "depthTexture"), 0);
-    glUniform2f(glGetUniformLocation(_blur_program_, "blurDir"), blurDirX.x, blurDirX.y);
+    glUniform2f(glGetUniformLocation(_blur_program_, "blurDir"), blurDirY.x, blurDirY.y);
     glUniform1f(glGetUniformLocation(_blur_program_, "filterRadius"), filterRadius);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_RECTANGLE, _depth._renderedTexture);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
-    glUniform2f(glGetUniformLocation(_blur_program_, "blurDir"), blurDirY.x, blurDirY.y);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-
     glBindVertexArray(0);
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-/*
-// Particle Thickness
-    glBindFramebuffer(GL_FRAMEBUFFER, _normal._framebufferName);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _normal._framebufferName);
 
-    glUseProgram(_normal_program_);
+    // Compute Normal
 
-    glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
-    glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
-    glBindVertexArray(_partical_vao_);
+    static auto compute_normal = [&]() {
+        GLuint p = util::createProgram_C(util::readFile("shaders\\fluid_normal.glsl"));
+        GLuint dTex = glGetUniformLocation(p, "depthTexture");
+        GLuint tanFov = glGetUniformLocation(p, "tanfov");
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
+        GLuint buffer;
+        glGenBuffers(1, &buffer);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * 1024 * 1024, NULL, GL_STATIC_READ);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        struct {
+            GLuint program;
+            GLuint dTex;
+            GLuint tanfov;
+            GLuint buffer;
+        }result;
 
-    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details + 2, _partical_count_);
-    glViewport(screensize[0], screensize[1], screensize[2], screensize[3]);
-    glBindVertexArray(0);
+        result.program = p;
+        result.dTex = dTex;
+        result.tanfov = tanFov;
+        result.buffer = buffer;
+        return result;
+    }();
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-*/
-// Render to screen
+    glBindTexture(GL_TEXTURE_RECTANGLE, _blur._renderedTexture);
+    glUseProgram(compute_normal.program);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, compute_normal.buffer);
+    glUniform1i(compute_normal.dTex, 0);
+    glUniform2fv(compute_normal.tanfov, 1, &camera.getTanFov()[0]);
+
+    glDispatchCompute(32, 32, 1);
+    glFinish();
+
     glUseProgram(_screen_program_);
     glBindVertexArray(vao);
-    glUniform1i(glGetUniformLocation(_screen_program_, "screenTexture"), 0);
+    glUniform1i(glGetUniformLocation(_screen_program_, "depthTexture"), 0);
+
+    glUniformMatrix4fv(glGetUniformLocation(_screen_program_, "mProjection"), 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
+
+    glUniform2fv(glGetUniformLocation(_screen_program_, "tanfov"), 1, &camera.getTanFov()[0]);
+
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE, _blur._renderedTexture);
+    glBindTexture(GL_TEXTURE_RECTANGLE, _depth._renderedTexture);
+
+
 
     glDisable(GL_CULL_FACE);
+
+    glViewport(screensize[0], screensize[1], screensize[2], screensize[3]);
+    glEnable(GL_DEPTH_TEST);
+
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
+
+    
 
 }
 

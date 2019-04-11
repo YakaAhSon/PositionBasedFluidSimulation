@@ -7,6 +7,8 @@ private:
     float angle_heading;
     float angle_pitch;
     glm::vec3 v_pos;// center
+
+    glm::vec2 tanfov;
 public:
     Camera();
 
@@ -26,4 +28,6 @@ public:
 
     void rotateRight(float a);
     void rotateUp(float a);
+
+    const glm::vec2& getTanFov()const { return tanfov; }
 };

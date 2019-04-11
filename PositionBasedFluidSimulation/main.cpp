@@ -195,6 +195,10 @@ int main(void)
 
         boundary::update();
         boundary::render(renderer.camera);
+
+        SolidModel::renderAll(renderer.camera);
+        pbf.cloth->render(renderer.camera);
+
         if (!sim_run&& sim_step) {
             sim_step = false;
             pbf.sim(timestep);
@@ -204,8 +208,7 @@ int main(void)
             pbf.sim(timestep);
 
         renderer.render();
-        SolidModel::renderAll(renderer.camera);
-        pbf.cloth->render(renderer.camera);
+        
 
         updateFPS();
         glfwSwapBuffers(window);
