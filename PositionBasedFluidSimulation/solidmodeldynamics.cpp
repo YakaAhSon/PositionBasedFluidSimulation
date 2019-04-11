@@ -21,7 +21,7 @@ void SolidModel::predict()
     _orientation_ = glm::normalize(_orientation_);
 
     _orientation_prev_ = tmpquat;
-
+    
     // solve constraint with boundary
     //util::Timer t;
     int step = glm::max(int(_mesh_.size() / 500),1);
@@ -74,6 +74,7 @@ void SolidModel::predict()
 void SolidModel::predictAll(void* c) {
     for (auto m : _unfixed_models_) {
         m->predict();
+        m->collisionWithCloth(c);
     }
 
     int size = _unfixed_models_.size();
@@ -92,10 +93,7 @@ void SolidModel::predictAll(void* c) {
         }
     }
 
-    for (auto model : _unfixed_models_)
-    {
-        model->collisionWithCloth(c);
-    }
+    
 }
 
 void SolidModel::renderAll(Camera & camera)

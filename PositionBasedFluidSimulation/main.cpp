@@ -56,13 +56,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         boundary::toggleWave();
 
     if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-        last_model = pbf.addObject("assets\\sphere.obj", 100.0);
+        last_model = pbf.addObject("assets\\sphere.obj", 200.0);
 
     if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-        last_model = pbf.addObject("assets\\bunny.obj", 200.0);
+        last_model = pbf.addObject("assets\\bunny.obj", 800.0);
 
-    if (key == GLFW_KEY_3 && action == GLFW_PRESS)
-        last_model = pbf.addObject("assets\\torus.obj", 100.0);
 }
 
 
@@ -133,6 +131,7 @@ void controlModel() {
     {
         last_model->moveGlobal(glm::vec3(0, 0, speed));
     }
+    last_model->updateModelViewMatrices();
 }
 
 int main(void) 

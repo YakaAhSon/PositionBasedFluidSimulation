@@ -52,8 +52,6 @@ void SolidModel::voxelize()
     glUniform1f(erodeDistance, _voxel_size_*1.1);
     glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
 
-    glUniform1f(erodeDistance, _voxel_size_*1.6);
-    glDrawArrays(GL_TRIANGLES, 0, _mesh_.size());
 
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, _voxel_buffer_);

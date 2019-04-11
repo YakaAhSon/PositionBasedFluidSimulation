@@ -186,13 +186,13 @@ void PBF::initialize()
     glBufferData(GL_SHADER_STORAGE_BUFFER, _grid_count_ * sizeof(Grid), NULL, GL_STREAM_READ);
 
 
-    SolidModel* cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 200.0);
+    SolidModel* cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 20000.0);
     cylinder->moveGlobal(glm::vec3(9, 0, -4));
 
-    cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 200.0);
+    cylinder = SolidModel::loadModel("assets\\cylinder.obj", 1, 20000.0);
     cylinder->moveGlobal(glm::vec3(9, 0, 4));
 
-    cylinder = SolidModel::loadModel("assets\\cylinder_h.obj", 1, 200.0);
+    cylinder = SolidModel::loadModel("assets\\cylinder_h.obj", 1, 20000.0);
     cylinder->moveGlobal(glm::vec3(9, 4, 0));
 
     cloth = new Cloth(10, 10, glm::vec3(9, 4, -4), glm::vec3(9, 4, 4), glm::vec3(9, -4, -4));

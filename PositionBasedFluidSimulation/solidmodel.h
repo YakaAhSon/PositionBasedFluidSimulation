@@ -109,7 +109,7 @@ private:
     void positionImpulseGlobal(glm::vec3 pos, glm::vec3 norm, float depth);
     // m.verticed vs self.voxels
     void solveCollision(SolidModel* m);
-
+public:
     void updateModelViewMatrices();
 
 public:
