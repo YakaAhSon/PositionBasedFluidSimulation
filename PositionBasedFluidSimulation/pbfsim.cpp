@@ -256,7 +256,7 @@ void PBF::sim(double timestep)
 SolidModel* PBF::addObject(const char * modelFile, float mass)
 {
     auto* d = SolidModel::loadModel(modelFile,0,mass);
-    d->moveGlobal(glm::vec3(0, 1, 0));
+    d->moveGlobal(glm::vec3(0, 2, 0));
     return d;
 }
 

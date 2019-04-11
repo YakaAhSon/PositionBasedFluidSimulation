@@ -10,7 +10,7 @@
 #include"boundary.h"
 
 
-PBF pbf(64*1024, 0.2, 800.0, 0.35);
+PBF pbf(100*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
 static void updateFPS() 
