@@ -26,22 +26,17 @@ out float depth;
 
 uniform float partical_radius;
 
-uniform int renderPartical;
-
 void main(void)
 {
 
     vec3 particalPosition = particals[gl_InstanceID].pos;
 
     vec4 pos_view = mView * vec4(particalPosition, 1.0);
-    
-    
-    vec4 vertex_pos = vec4((0.2-0.1*renderPartical)*vVertex, 0.0, 0.0) + pos_view;
+    depth = -(pos_view.z)/36.0f;
+
+    vec4 vertex_pos = vec4(0.2*vVertex, 0.0, 0.0) + pos_view;
 
     gl_Position = mProjection * vertex_pos;
     
-    float color = dot(vVertex, vec2(1, 1))*0.5+0.5;
-
-    depth = (renderPartical==1)?color:( -(pos_view.z) / 36.0f);
 
 }

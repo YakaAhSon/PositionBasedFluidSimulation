@@ -197,6 +197,7 @@ void PBF::initialize()
 
     cloth = new Cloth(10, 10, glm::vec3(9, 4, -4), glm::vec3(9, 4, 4), glm::vec3(9, -4, -4));
 
+
 }
 
 void PBF::sim(double timestep)

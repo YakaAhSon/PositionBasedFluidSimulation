@@ -35,10 +35,12 @@ void boundary::render(Camera& camera)
     static GLuint program = []() {
         GLuint p = util::createProgram_VF(util::readFile("shaders\\mesh_render_vertex.glsl"),
             util::readFile("shaders\\mesh_render_fragment.glsl"));
-        glBindAttribLocation(program, 0, "vVertex");
-        glBindAttribLocation(program, 1, "vNorm");
+
+        glBindAttribLocation(p, 0, "vVertex");
+        glBindAttribLocation(p, 1, "vNorm");
 
         util::linkProgram(p);
+
         return p;
     }();
     bindUniformLocation(mMVP);

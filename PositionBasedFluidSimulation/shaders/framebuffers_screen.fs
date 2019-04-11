@@ -27,7 +27,7 @@ void main()
 
 	if(0<depth&& depth<36){
 		
-		gl_FragDepth = me_p.z/me_p.w;
+		gl_FragDepth = me_p.z/me_p.w-2.0;
 	}
 	else{
 		gl_FragDepth = 2.0;
@@ -38,5 +38,5 @@ void main()
 	
     //gl_FragColor = vec4(col,col,col, 1.0);
 	gl_FragColor = normals[t.x*1024+t.y];
-	
+	gl_FragColor.a = 0.7;
 } 

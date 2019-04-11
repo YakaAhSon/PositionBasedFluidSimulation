@@ -13,6 +13,8 @@
 PBF pbf(100*1024, 0.2, 800.0, 0.35);
 PBFRenderer renderer;
 
+bool render_partical = true;
+
 static void updateFPS() 
 {
     static DWORD s = GetTickCount64(), e;
@@ -60,6 +62,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     if (key == GLFW_KEY_2 && action == GLFW_PRESS)
         last_model = pbf.addObject("assets\\bunny.obj", 800.0);
+
+    if (key == GLFW_KEY_P && action == GLFW_PRESS)
+        render_partical = !render_partical;
 
 }
 
@@ -143,6 +148,7 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_DEPTH_BITS, 32);
 
     window = glfwCreateWindow(512, 512, "Window", NULL, NULL);
     if (!window) 
@@ -182,8 +188,6 @@ int main(void)
     glEnable(GL_MULTISAMPLE);
     glViewport(0, 0, 512, 512);
 
-
-
     while (!glfwWindowShouldClose(window)) 
     {
         controlModel();
@@ -194,8 +198,9 @@ int main(void)
         double timestep = 1 / 60.0;
 
         boundary::update();
-        boundary::render(renderer.camera);
 
+
+        boundary::render(renderer.camera);
         SolidModel::renderAll(renderer.camera);
         pbf.cloth->render(renderer.camera);
 
@@ -204,12 +209,27 @@ int main(void)
             pbf.sim(timestep);
         }
 
+
         if(sim_run)
             pbf.sim(timestep);
 
-        renderer.render();
-        
+        if (!render_partical) {
+            int vp[4];
+            glGetIntegerv(GL_VIEWPORT, vp);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, renderer._depth._framebufferName);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glViewport(0, 0, 1024, 1024);
+            boundary::render(renderer.camera);
+            SolidModel::renderAll(renderer.camera);
+            pbf.cloth->render(renderer.camera);
+            glViewport(0, 0, vp[2], vp[3]);
 
+            renderer.render();
+        }
+        else {
+            renderer.renderPartical();
+        }
+        
         updateFPS();
         glfwSwapBuffers(window);
         glfwPollEvents();

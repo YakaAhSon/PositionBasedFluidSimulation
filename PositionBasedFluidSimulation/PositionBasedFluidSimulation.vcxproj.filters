@@ -51,6 +51,9 @@
     <Filter Include="shaders\fluid_renderer">
       <UniqueIdentifier>{8b8f0d18-a204-4523-81fb-1b4e570c3a8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shaders\render_partical">
+      <UniqueIdentifier>{a8c201bb-a43b-409d-85fe-a60d90d4b343}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

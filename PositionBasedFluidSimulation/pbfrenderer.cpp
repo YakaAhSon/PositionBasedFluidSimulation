@@ -62,6 +62,7 @@ void PBFRenderer::initialize(const PBF* pbf, int partical_count)
 
 void PBFRenderer::render()
 {
+
     int screensize[4];
     glGetIntegerv(GL_VIEWPORT, screensize);
 
@@ -78,6 +79,7 @@ void PBFRenderer::render()
 
     static GLuint quad_vertexbuffer;
     static GLuint vao = [&]() {
+
         GLuint vao;
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -91,14 +93,19 @@ void PBFRenderer::render()
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 3 * 4, 0);
 
         return vao;
+
     }();
 
 // Particle Depth
-    glBindFramebuffer(GL_FRAMEBUFFER, _depth._framebufferName);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _depth._framebufferName);
+
+    glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(_render_program_);
 
+    glUniform1i(glGetUniformLocation(_render_program_, "renderPartical"), 0);
     glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
     glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
     glBindVertexArray(_partical_vao_);
@@ -106,7 +113,6 @@ void PBFRenderer::render()
     GLuint partical_buffer = _pbf_->getCurrPosVBO();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
 
-    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
     
     glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details +2, _partical_count_);
@@ -190,13 +196,13 @@ void PBFRenderer::render()
 
 
     glDisable(GL_CULL_FACE);
-
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glViewport(screensize[0], screensize[1], screensize[2], screensize[3]);
     glEnable(GL_DEPTH_TEST);
-
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
-
+    glDisable(GL_BLEND);
     
 
 }
@@ -217,11 +223,27 @@ void fboWrapper::init(int nWidth, int nHeight)
     
     glGenRenderbuffers(1, &_depthrenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, _depthrenderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, nWidth, nHeight);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, nWidth, nHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _depthrenderbuffer);
-
-    std::cout << glCheckFramebufferStatus(GL_FRAMEBUFFER)<<std::endl;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+
+void PBFRenderer::renderPartical() {
+    glUseProgram(_render_program_);
+
+    glUniform1i(glGetUniformLocation(_render_program_, "renderPartical"), 1);
+    glUniformMatrix4fv(_render_program_mView_location_, 1, GL_FALSE, &camera.getViewMatrix()[0][0]);
+    glUniformMatrix4fv(_render_program_mProjection_location_, 1, GL_FALSE, &camera.getProjectionMatrix()[0][0]);
+    glBindVertexArray(_partical_vao_);
+
+    GLuint partical_buffer = _pbf_->getCurrPosVBO();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, partical_buffer);
+
+
+
+    glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, sphere_details + 2, _partical_count_);
+    glBindVertexArray(0);
 }

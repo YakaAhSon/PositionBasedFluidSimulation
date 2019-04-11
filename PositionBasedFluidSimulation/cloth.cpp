@@ -32,9 +32,10 @@ Cloth::Cloth(int gridX, int gridY, glm::vec3 upperLeft, glm::vec3 upperRight, gl
         }
     }
 
-    glGenBuffers(1, &_vertices_buffer_);
+    glCreateBuffers(1, &_vertices_buffer_);
+   
     glNamedBufferData(_vertices_buffer_, _vertices_.size() * sizeof(Vertex), &_vertices_[0], GL_STREAM_DRAW);
-
+    
     // set pins
     getVertex(0, 0).fixed = 1;
     getVertex(gridX, 0).fixed = 1;

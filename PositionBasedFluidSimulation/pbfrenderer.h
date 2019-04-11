@@ -33,7 +33,7 @@ private:
     int _partical_count_;
 
     const PBF* _pbf_;
-
+public:
     fboWrapper _depth;
     fboWrapper _blur;
     fboWrapper _normal;
@@ -47,6 +47,8 @@ public:
     void initialize(const PBF* pbf, int partical_count);
 
     void render();
+
+    void renderPartical();
 };
 
 #endif
