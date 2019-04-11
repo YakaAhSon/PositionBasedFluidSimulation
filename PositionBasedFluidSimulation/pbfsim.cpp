@@ -158,9 +158,9 @@ void PBF::initialize()
 {
     std::vector<Partical> particals;
     particals.reserve(_partical_count_);
-    for (float y = 5.0; y > -5.0; y-=_partical_size_) {
-        for (float x = -7.0; x < 7.0; x += _partical_size_) {
-            for (float z = -5.0; z < 5.0; z += _partical_size_){
+    for (float y = 5.5; y > -5.5; y-=_partical_size_) {
+        for (float x = -11.0; x < -4.0; x += _partical_size_) {
+            for (float z = -5.5; z < 5.5; z += _partical_size_){
                 particals.push_back({
                     glm::vec3(x,y,z) ,
                     0,
