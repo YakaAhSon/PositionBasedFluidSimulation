@@ -2,6 +2,8 @@
 Game Physics class final project of Lu Guowei and Liu Zhaopeng.
 
 Based on [this paper](http://mmacklin.com/pbf_sig_preprint.pdf).
+## screenshot
+![](screenshot.PNG)
 
 ## Scope
 * Partical Based Fluid Simulation
@@ -18,6 +20,8 @@ Based on [this paper](http://mmacklin.com/pbf_sig_preprint.pdf).
 * `Left Click and Drag` to change camera direction
 * `P` toggel surface|partical rendering
 * `V` toggel wave
+* `1` to add ball
+* `2` to add bunny
 ## Performence
 We test the performence on `GTX1060` with `5` iterations per frame.
 
